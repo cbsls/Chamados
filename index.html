@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpDesk Interno</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { margin: 0; background: #eef2f7; padding: 20px; color: #1f2937; }
+    .container {
+      max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px;
+      border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    h1 { margin-top: 0; color: #0f4c81; }
+    h2 { color: #0f4c81; margin-top: 28px; }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    button {
+      background: #0f4c81; color: white; border: none; cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { opacity: 0.95; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 8px;
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+    .muted { color: #64748b; }
+    .linha { margin-top: 8px; }
+    .topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .admin-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .acoes {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .acoes button {
+      width: auto;
+      padding: 8px 12px;
+    }
+    .btn-sec { background: #475569; }
+    .btn-ok { background: #16a34a; }
+    .btn-alerta { background: #f59e0b; }
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topo">
+      <h1>🛠️ HelpDesk Interno</h1>
+      <div class="muted">Abertura de chamados e acompanhamento</div>
+    </div>
+
+    <h2>👤 Identificação do usuário</h2>
+    <div class="grid">
+      <div>
+        <label>Nome</label>
+        <input id="nome" placeholder="Digite seu nome">
+      </div>
+      <div>
+        <label>Matrícula</label>
+        <input id="matricula" placeholder="Digite sua matrícula">
+      </div>
+    </div>
+
+    <h2>📋 Abrir chamado</h2>
+    <label>Título</label>
+    <input id="titulo" placeholder="Ex: Lâmpada queimada no corredor">
+
+    <label>Descrição</label>
+    <textarea id="descricao" placeholder="Descreva o problema ou serviço"></textarea>
+
+    <div class="grid">
+      <div>
+        <label>Local</label>
+        <input id="local" placeholder="Ex: Corredor, Sala 2, Pátio">
+      </div>
+      <div>
+        <label>Prioridade</label>
+        <select id="prioridade">
+          <option value="Baixa">Baixa</option>
+          <option value="Média" selected>Média</option>
+          <option value="Alta">Alta</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="acoes">
+      <button id="btnAbrir">Registrar chamado</button>
+      <button class="btn-sec" id="btnLimpar">Limpar</button>
+    </div>
+
+    <div class="admin-box">
+      <h2>🔍 Acompanhar chamados</h2>
+
+      <div class="grid">
+        <div>
+          <label>Buscar</label>
+          <input id="busca" placeholder="Buscar por título, nome, matrícula, local">
+        </div>
+        <div>
+          <label>Filtrar por status</label>
+          <select id="filtroStatus">
+            <option value="">Todos</option>
+            <option value="Aguardando triagem">Aguardando triagem</option>
+            <option value="Encaminhado">Encaminhado</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="lista"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const SUPABASE_URL = 'https://azltlpjyyeecurmebffm.supabase.co'
+    const SUPABASE_KEY = 'sb_publishable_ODDfIVnGOb1csV9DA8kURQ_pbKPeQNO'
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
+    const $ = (id) => document.getElementById(id)
+    let chamados = []
+
+    function esc(texto) {
+      return String(texto ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;')
+    }
+
+    function formatarData(data) {
+      if (!data) return '-'
+      return new Date(data).toLocaleString('pt-BR')
+    }
+
+    async function abrirChamado() {
+      const nome = $('nome').value.trim()
+      const matricula = $('matricula').value.trim()
+      const titulo = $('titulo').value.trim()
+      const descricao = $('descricao').value.trim()
+      const local = $('local').value.trim()
+      const prioridade = $('prioridade').value
+
+      if (!nome || !matricula || !titulo) {
+        alert('Preencha nome, matrícula e título.')
+        return
+      }
+
+      const { error } = await supabase
+        .from('chamados')
+        .insert([{
+          nome_solicitante: nome,
+          matricula_solicitante: matricula,
+          titulo,
+          descricao,
+          local,
+          prioridade,
+          status: 'Aguardando triagem'
+        }])
+
+      if (error) {
+        alert('Erro ao registrar chamado: ' + error.message)
+        return
+      }
+
+      $('titulo').value = ''
+      $('descricao').value = ''
+      $('local').value = ''
+      $('prioridade').value = 'Média'
+
+      await carregarChamados()
+      alert('Chamado registrado com sucesso.')
+    }
+
+    async function carregarChamados() {
+      const { data, error } = await supabase
+        .from('chamados')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        $('lista').innerHTML = '<div class="card">Erro ao carregar chamados.</div>'
+        return
+      }
+
+      chamados = data || []
+      renderChamados()
+    }
+
+    function renderChamados() {
+      const busca = $('busca').value.trim().toLowerCase()
+      const filtroStatus = $('filtroStatus').value
+
+      const filtrados = chamados.filter(c => {
+        const texto = [
+          c.nome_solicitante,
+          c.matricula_solicitante,
+          c.titulo,
+          c.descricao,
+          c.local,
+          c.setor_responsavel,
+          c.status
+        ].join(' ').toLowerCase()
+
+        const okBusca = !busca || texto.includes(busca)
+        const okStatus = !filtroStatus || c.status === filtroStatus
+
+        return okBusca && okStatus
+      })
+
+      const lista = $('lista')
+
+      if (!filtrados.length) {
+        lista.innerHTML = '<div class="card">Nenhum chamado encontrado.</div>'
+        return
+      }
+
+      lista.innerHTML = filtrados.map(c => `
+        <div class="card">
+          <div><strong>${esc(c.titulo)}</strong></div>
+          <div class="linha">${esc(c.descricao || '-')}</div>
+          <div class="linha">👤 ${esc(c.nome_solicitante)} (${esc(c.matricula_solicitante)})</div>
+          <div class="linha">📍 ${esc(c.local || '-')}</div>
+          <div class="linha">⚡ Prioridade: ${esc(c.prioridade || '-')}</div>
+          <div class="linha">🏢 Setor responsável: ${esc(c.setor_responsavel || 'Não definido')}</div>
+          <div class="linha">🕒 ${esc(formatarData(c.created_at))}</div>
+          <div class="badge">${esc(c.status || '-')}</div>
+        </div>
+      `).join('')
+    }
+
+    function limparFormulario() {
+      $('titulo').value = ''
+      $('descricao').value = ''
+      $('local').value = ''
+      $('prioridade').value = 'Média'
+    }
+
+    $('btnAbrir').addEventListener('click', abrirChamado)
+    $('btnLimpar').addEventListener('click', limparFormulario)
+    $('busca').addEventListener('input', renderChamados)
+    $('filtroStatus').addEventListener('change', renderChamados)
+
+    carregarChamados()
+  </script>
+</body>
+</html>
