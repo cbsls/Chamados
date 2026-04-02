@@ -320,7 +320,7 @@
 
     .setores {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr;
       gap: 10px;
     }
 
@@ -421,11 +421,11 @@
     }
 
     .ticket-sub {
-  color: #24343d;
-  font-size: 15px;
-  white-space: pre-wrap;
-  line-height: 1.6;
-}
+      color: #24343d;
+      font-size: 15px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
 
     .meta {
       display: grid;
@@ -543,7 +543,6 @@
         gap: 12px;
       }
       .stats { grid-template-columns: repeat(3, 1fr); }
-      .setores { grid-template-columns: repeat(6, 1fr); }
       .toolbar { grid-template-columns: repeat(2, 1fr); }
       .tabbar { width: min(700px, calc(100% - 40px)); }
     }
@@ -557,7 +556,7 @@
           <div class="wa-avatar">🛠️</div>
           <div class="wa-title-wrap">
             <div class="wa-title">HelpDesk Interno Mobile PRO</div>
-            <div class="wa-subtitle">Chamados no estilo WhatsApp</div>
+            <div class="wa-subtitle">Chamados no estilo WhatsApp • Setor B4</div>
           </div>
         </div>
 
@@ -599,14 +598,9 @@
       </div>
 
       <div class="card">
-        <h2>🏢 Setores</h2>
+        <h2>🏢 Setor</h2>
         <div class="setores">
-          <div class="stat"><div class="num" id="stB1">0</div><div class="lab">B1</div></div>
-          <div class="stat"><div class="num" id="stB2">0</div><div class="lab">B2</div></div>
-          <div class="stat"><div class="num" id="stB3">0</div><div class="lab">B3</div></div>
           <div class="stat"><div class="num" id="stB4">0</div><div class="lab">B4</div></div>
-          <div class="stat"><div class="num" id="stB5">0</div><div class="lab">B5</div></div>
-          <div class="stat"><div class="num" id="stSseg">0</div><div class="lab">Sseg</div></div>
         </div>
       </div>
     </section>
@@ -630,6 +624,7 @@
 
       <div class="card">
         <h2>💬 Novo chamado</h2>
+        <div class="sub">O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.</div>
 
         <label for="titulo">Título</label>
         <input id="titulo" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
@@ -637,20 +632,8 @@
         <label for="descricao">Descrição</label>
         <textarea id="descricao" placeholder="Descreva o problema com detalhes"></textarea>
 
-        <div class="grid-2">
-          <div>
-            <label for="local">Local</label>
-            <input id="local" placeholder="Ex: COZINHA, SALA 2, CORREDOR" />
-          </div>
-          <div>
-            <label for="prioridade">Prioridade</label>
-            <select id="prioridade">
-              <option value="Baixa">Baixa</option>
-              <option value="Média" selected>Média</option>
-              <option value="Alta">Alta</option>
-            </select>
-          </div>
-        </div>
+        <label for="local">Local</label>
+        <input id="local" placeholder="Ex: COZINHA, SALA 2, CORREDOR" />
 
         <div class="actions">
           <button id="btnAbrir" class="btn-primary">Enviar chamado</button>
@@ -680,12 +663,7 @@
 
           <select id="filtroSetor">
             <option value="">Todos os setores</option>
-            <option value="B1">B1</option>
-            <option value="B2">B2</option>
-            <option value="B3">B3</option>
             <option value="B4">B4</option>
-            <option value="B5">B5</option>
-            <option value="Sseg">Sseg</option>
           </select>
 
           <select id="filtroResponsavel">
@@ -727,7 +705,7 @@
       <div class="card">
         <h2>🧩 Estrutura mantida</h2>
         <div class="install-tip">
-          Este layout novo mantém o banco Supabase, triagem, setor, responsável, prioridade e negativa.
+          Este layout mantém o Supabase, triagem, responsável, prioridade e negativa, com setor único B4.
         </div>
       </div>
     </section>
@@ -736,7 +714,7 @@
   <nav class="tabbar">
     <button data-screen="home" class="active">🏠<br>Início</button>
     <button data-screen="novo">➕<br>Novo</button>
-    <button data-screen="chamados">💬<br>Chamados</button>
+    <button data-screen="chamados">📋<br>Chamados</button>
     <button data-screen="perfil">👤<br>Perfil</button>
   </nav>
 
@@ -767,6 +745,9 @@
       'SD PEGLOW',
       'SD LARSSON'
     ]
+
+    const SETOR_FIXO = 'B4'
+    const PRIORIDADE_PADRAO = 'Média'
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
     const $ = (id) => document.getElementById(id)
@@ -931,7 +912,6 @@
       const titulo = toUpperSafe($('titulo').value)
       const descricao = $('descricao').value.trim()
       const local = toUpperSafe($('local').value)
-      const prioridade = $('prioridade').value
 
       $('nome').value = nome
 
@@ -949,8 +929,9 @@
             titulo,
             descricao,
             local,
-            prioridade,
+            prioridade: PRIORIDADE_PADRAO,
             status: 'Aguardando triagem',
+            setor_responsavel: SETOR_FIXO,
             observacao_admin: null,
             responsavel_designado: null,
             justificativa_negativa: null
@@ -1011,13 +992,7 @@
       $('stAndamento').textContent = chamados.filter(c => c.status === 'Em andamento').length
       $('stFinalizado').textContent = chamados.filter(c => c.status === 'Finalizado').length
       $('stNegado').textContent = chamados.filter(c => c.status === 'Negado').length
-
-      $('stB1').textContent = chamados.filter(c => c.setor_responsavel === 'B1').length
-      $('stB2').textContent = chamados.filter(c => c.setor_responsavel === 'B2').length
-      $('stB3').textContent = chamados.filter(c => c.setor_responsavel === 'B3').length
       $('stB4').textContent = chamados.filter(c => c.setor_responsavel === 'B4').length
-      $('stB5').textContent = chamados.filter(c => c.setor_responsavel === 'B5').length
-      $('stSseg').textContent = chamados.filter(c => c.setor_responsavel === 'Sseg').length
     }
 
     function responsavelOptions(selectedValue = '') {
@@ -1090,15 +1065,7 @@
 
           ${adminMode ? `
             <div class="admin-area">
-              <select onchange="alterarSetor('${c.id}', this.value)">
-                <option value="" ${!c.setor_responsavel ? 'selected' : ''}>Setor: Não definido</option>
-                <option value="B1" ${c.setor_responsavel === 'B1' ? 'selected' : ''}>B1</option>
-                <option value="B2" ${c.setor_responsavel === 'B2' ? 'selected' : ''}>B2</option>
-                <option value="B3" ${c.setor_responsavel === 'B3' ? 'selected' : ''}>B3</option>
-                <option value="B4" ${c.setor_responsavel === 'B4' ? 'selected' : ''}>B4</option>
-                <option value="B5" ${c.setor_responsavel === 'B5' ? 'selected' : ''}>B5</option>
-                <option value="Sseg" ${c.setor_responsavel === 'Sseg' ? 'selected' : ''}>Sseg</option>
-              </select>
+              <div class="chip">🏢 Setor fixo: B4</div>
 
               <select onchange="alterarStatus('${c.id}', this.value)">
                 <option value="Aguardando triagem" ${c.status === 'Aguardando triagem' ? 'selected' : ''}>Aguardando triagem</option>
@@ -1127,13 +1094,6 @@
       `).join('')
     }
 
-    async function alterarSetor(id, setor) {
-      if (!adminMode) return
-      const { error } = await supabase.from('chamados').update({ setor_responsavel: setor || null }).eq('id', id)
-      if (error) return showMessage('Erro ao atualizar setor: ' + error.message, 'erro')
-      await loadTickets(false)
-    }
-
     async function alterarStatus(id, status) {
       if (!adminMode) return
 
@@ -1147,7 +1107,11 @@
         }
       }
 
-      const updateData = { status }
+      const updateData = {
+        status,
+        setor_responsavel: SETOR_FIXO
+      }
+
       if (status !== 'Negado') updateData.justificativa_negativa = null
 
       const { error } = await supabase.from('chamados').update(updateData).eq('id', id)
@@ -1196,7 +1160,7 @@
 
       const { error } = await supabase.from('chamados').update({
         status: 'Negado',
-        setor_responsavel: null,
+        setor_responsavel: SETOR_FIXO,
         responsavel_designado: null
       }).eq('id', id)
 
@@ -1208,7 +1172,6 @@
       $('titulo').value = ''
       $('descricao').value = ''
       $('local').value = ''
-      $('prioridade').value = 'Média'
     }
 
     function trocarTela(nome) {
@@ -1241,7 +1204,6 @@
     $('matricula').addEventListener('input', () => { $('perfilMatricula').value = $('matricula').value.trim() })
     $('nome').addEventListener('input', () => { $('perfilNome').value = $('nome').value })
 
-    window.alterarSetor = alterarSetor
     window.alterarStatus = alterarStatus
     window.alterarPrioridade = alterarPrioridade
     window.alterarResponsavel = alterarResponsavel
