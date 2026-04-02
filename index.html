@@ -4,46 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>HelpDesk Interno Mobile PRO</title>
-  <meta name="theme-color" content="#0f4c81" />
+  <meta name="theme-color" content="#075E54" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" href="icon.png" />
+  <link rel="apple-touch-icon" href="icon.png" />
   <style>
-    * { box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
 
     :root {
-      --bg: #eef3f8;
-      --bg-2: #dbe7f3;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #64748b;
-      --primary: #0f4c81;
-      --primary-2: #1565a9;
-      --border: #dbe4ee;
-      --soft: #f8fafc;
-      --success-bg: #dcfce7;
-      --success-tx: #166534;
-      --error-bg: #fee2e2;
-      --error-tx: #991b1b;
-      --warning-bg: #fef3c7;
-      --warning-tx: #92400e;
-      --info-bg: #dbeafe;
-      --info-tx: #1d4ed8;
-      --gray-bg: #e2e8f0;
-      --gray-tx: #334155;
-      --negado-bg: #fef2f2;
-      --negado-tx: #b91c1c;
-      --alta-card: #fff1f2;
-      --media-card: #fffbeb;
-      --baixa-card: #f8fafc;
-      --shadow: 0 12px 28px rgba(15, 76, 129, 0.10);
-      --radius: 22px;
+      --wa-dark: #111b21;
+      --wa-header: #075E54;
+      --wa-header-2: #0b7064;
+      --wa-accent: #25D366;
+      --wa-bg: #efeae2;
+      --wa-panel: #f0f2f5;
+      --wa-card: #ffffff;
+      --wa-card-user: #dcf8c6;
+      --wa-border: #d1d7db;
+      --wa-text: #111b21;
+      --wa-muted: #667781;
+      --wa-chip: #e9edef;
+      --wa-danger: #b91c1c;
+      --wa-danger-bg: #fde7e9;
+      --wa-warning: #92400e;
+      --wa-warning-bg: #fff3cd;
+      --wa-info: #0b57d0;
+      --wa-info-bg: #e7f3ff;
+      --wa-success: #166534;
+      --wa-success-bg: #dcfce7;
+      --wa-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      --wa-radius: 18px;
     }
 
     html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      background: linear-gradient(180deg, var(--bg), var(--bg-2));
-      color: var(--text);
+      background:
+        linear-gradient(180deg, var(--wa-header) 0 120px, var(--wa-bg) 120px 100%);
+      color: var(--wa-text);
       min-height: 100vh;
     }
 
@@ -51,52 +54,72 @@
       max-width: 560px;
       margin: 0 auto;
       min-height: 100vh;
-      padding: 14px 14px 100px;
+      padding: 0 0 92px;
+      background: transparent;
     }
 
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 40;
-      margin: -14px -14px 14px;
-      padding: 14px;
-      background: rgba(238,243,248,0.92);
-      backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(15,76,129,0.08);
-    }
-
-    .hero {
-      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      z-index: 50;
+      background: linear-gradient(180deg, var(--wa-header), var(--wa-header-2));
       color: #fff;
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 14px 32px rgba(0,0,0,0.12);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     }
 
-    .hero h1 {
-      margin: 0 0 6px;
-      font-size: 1.35rem;
-      line-height: 1.15;
-    }
-
-    .hero p {
-      margin: 0;
-      opacity: 0.96;
-      font-size: 0.92rem;
-    }
-
-    .hero-top {
+    .wa-head {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: flex-start;
       gap: 10px;
+      padding: 14px 14px 10px;
+    }
+
+    .wa-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .wa-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.25);
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .wa-title-wrap {
+      min-width: 0;
+    }
+
+    .wa-title {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.1;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wa-subtitle {
+      margin-top: 3px;
+      font-size: 12px;
+      opacity: 0.92;
     }
 
     .admin-painel {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      min-width: 130px;
+      gap: 6px;
+      width: 148px;
+      flex-shrink: 0;
     }
 
     .pill {
@@ -104,79 +127,130 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
-      background: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.20);
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.24);
       text-align: center;
     }
 
-    .pill.on { background: rgba(34, 197, 94, 0.18); }
+    .pill.on {
+      background: rgba(37, 211, 102, 0.22);
+    }
 
-    .screen { display: none; }
-    .screen.active { display: block; }
+    .wa-header-actions {
+      display: flex;
+      gap: 8px;
+      padding: 0 14px 12px;
+    }
+
+    .wa-mini-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      width: 100%;
+    }
+
+    .wa-mini-btn.sec {
+      background: rgba(0,0,0,0.18);
+    }
+
+    .screen {
+      display: none;
+      padding: 12px;
+    }
+
+    .screen.active {
+      display: block;
+    }
 
     .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      border: 1px solid #edf2f7;
-      margin-bottom: 14px;
+      background: var(--wa-card);
+      border-radius: var(--wa-radius);
+      padding: 14px;
+      box-shadow: var(--wa-shadow);
+      border: 1px solid #edf0f2;
+      margin-bottom: 12px;
     }
 
     .card h2 {
-      margin: 0 0 10px;
-      color: var(--primary);
-      font-size: 1.08rem;
+      margin: 0 0 8px;
+      color: #0b3f39;
+      font-size: 1rem;
     }
 
     .sub {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: -2px;
+      color: var(--wa-muted);
+      font-size: 12px;
       margin-bottom: 12px;
     }
 
     label {
       display: block;
       margin: 10px 0 6px;
+      font-size: 12px;
       font-weight: bold;
-      font-size: 13px;
-      color: #334155;
+      color: #3b4a54;
     }
 
     input, textarea, select, button {
       width: 100%;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      padding: 12px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--wa-border);
+      padding: 11px 12px;
       font-size: 14px;
       background: #fff;
       outline: none;
     }
 
     textarea {
-      min-height: 94px;
+      min-height: 90px;
       resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #7cc4bc;
+      box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.10);
     }
 
     button {
       border: 0;
-      background: var(--primary);
-      color: #fff;
-      font-weight: bold;
       cursor: pointer;
+      font-weight: bold;
     }
 
-    .btn-sec { background: #475569; }
-    .btn-ghost { background: #e2e8f0; color: #1e293b; }
-    .btn-danger { background: #b91c1c; }
-    .btn-success { background: #15803d; }
-    .btn-warning { background: #b45309; }
+    .btn-primary {
+      background: var(--wa-header);
+      color: #fff;
+    }
+
+    .btn-sec {
+      background: #54656f;
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: #e9edef;
+      color: #233138;
+    }
+
+    .btn-danger {
+      background: #c62828;
+      color: #fff;
+    }
+
+    .btn-success {
+      background: #1f8f63;
+      color: #fff;
+    }
 
     .grid-2 {
       display: grid;
@@ -192,26 +266,27 @@
     }
 
     .msg {
-      margin: 12px 0 16px;
+      margin: 12px;
       padding: 12px 14px;
       border-radius: 14px;
       display: none;
       font-weight: bold;
       font-size: 14px;
+      box-shadow: var(--wa-shadow);
     }
 
     .msg.ok {
       display: block;
-      background: var(--success-bg);
-      color: var(--success-tx);
+      background: var(--wa-success-bg);
+      color: var(--wa-success);
       border: 1px solid #86efac;
     }
 
     .msg.erro {
       display: block;
-      background: var(--error-bg);
-      color: var(--error-tx);
-      border: 1px solid #fca5a5;
+      background: var(--wa-danger-bg);
+      color: var(--wa-danger);
+      border: 1px solid #f2b4bb;
     }
 
     .stats {
@@ -221,24 +296,24 @@
     }
 
     .stat {
-      background: var(--soft);
-      border: 1px solid var(--border);
+      background: var(--wa-panel);
+      border: 1px solid var(--wa-border);
       border-radius: 16px;
-      padding: 13px 10px;
+      padding: 12px 10px;
       text-align: center;
     }
 
     .stat .num {
       font-size: 22px;
       font-weight: bold;
-      color: var(--primary);
-      margin-bottom: 4px;
+      color: var(--wa-header);
+      margin-bottom: 3px;
       line-height: 1;
     }
 
     .stat .lab {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--wa-muted);
       line-height: 1.2;
       font-weight: bold;
     }
@@ -248,34 +323,6 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
     }
-
-    .chip, .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    .mini-badges {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .st-aguardando { background: var(--info-bg); color: #0369a1; }
-    .st-encaminhado { background: var(--warning-bg); color: var(--warning-tx); }
-    .st-andamento { background: #ede9fe; color: #6d28d9; }
-    .st-finalizado { background: var(--success-bg); color: var(--success-tx); }
-    .st-negado { background: var(--negado-bg); color: var(--negado-tx); }
-
-    .pr-baixa { background: var(--gray-bg); color: var(--gray-tx); }
-    .pr-media { background: #fde68a; color: #92400e; }
-    .pr-alta { background: #fecaca; color: #b91c1c; }
 
     .toolbar {
       display: grid;
@@ -287,7 +334,7 @@
       align-items: center;
       gap: 8px;
       background: #fff;
-      border: 1px solid var(--border);
+      border: 1px solid var(--wa-border);
       border-radius: 12px;
       padding: 12px;
       width: 100%;
@@ -301,19 +348,63 @@
       margin: 0;
     }
 
-    .ticket {
-      border-radius: 20px;
-      padding: 14px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      margin-bottom: 12px;
-      background: #fff;
+    .mini-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
 
-    .ticket.alta { background: var(--alta-card); }
-    .ticket.media { background: var(--media-card); }
-    .ticket.baixa { background: var(--baixa-card); }
-    .ticket.negado { background: var(--negado-bg); }
+    .badge, .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+      background: var(--wa-chip);
+      color: #334155;
+    }
+
+    .st-aguardando { background: var(--wa-info-bg); color: #0369a1; }
+    .st-encaminhado { background: var(--wa-warning-bg); color: var(--wa-warning); }
+    .st-andamento { background: #ede9fe; color: #6d28d9; }
+    .st-finalizado { background: var(--wa-success-bg); color: var(--wa-success); }
+    .st-negado { background: #fef2f2; color: #b91c1c; }
+
+    .pr-baixa { background: #e9edef; color: #455a64; }
+    .pr-media { background: #fff3cd; color: #8a5a00; }
+    .pr-alta { background: #ffd7d9; color: #b91c1c; }
+
+    .ticket {
+      position: relative;
+      border-radius: 14px;
+      padding: 12px 12px 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: var(--wa-shadow);
+      margin-bottom: 12px;
+      background: var(--wa-card);
+    }
+
+    .ticket::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: -7px;
+      width: 14px;
+      height: 14px;
+      background: inherit;
+      transform: rotate(45deg);
+      border-left: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .ticket.alta { background: #fff7f7; }
+    .ticket.media { background: #fffef8; }
+    .ticket.baixa { background: #ffffff; }
+    .ticket.negado { background: #fff5f5; }
 
     .ticket-head {
       display: flex;
@@ -324,16 +415,16 @@
 
     .ticket-title {
       font-weight: bold;
-      color: #0f172a;
+      color: #111b21;
       font-size: 15px;
       margin-bottom: 4px;
     }
 
     .ticket-sub {
-      color: var(--muted);
-      font-size: 12px;
+      color: #3b4a54;
+      font-size: 13px;
       white-space: pre-wrap;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .meta {
@@ -347,37 +438,54 @@
     .obs-box, .neg-box {
       margin-top: 10px;
       padding: 10px;
-      border-radius: 14px;
+      border-radius: 12px;
       font-size: 12px;
       white-space: pre-wrap;
       line-height: 1.4;
-      border: 1px solid var(--border);
-      background: #fff;
+      border: 1px solid var(--wa-border);
+      background: #f8fafb;
     }
 
-    .obs-box { background: #eff6ff; color: #1e3a8a; }
-    .neg-box { background: #fef2f2; color: #7f1d1d; }
+    .obs-box {
+      background: #eefaf5;
+      color: #1f513d;
+    }
+
+    .neg-box {
+      background: #fff1f2;
+      color: #7f1d1d;
+    }
 
     .admin-area {
       display: grid;
       gap: 8px;
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid rgba(15,76,129,0.08);
+      border-top: 1px solid #e6eaed;
+    }
+
+    .install-tip {
+      padding: 12px;
+      border-radius: 14px;
+      background: #eefaf5;
+      border: 1px solid #cce9db;
+      color: #245644;
+      font-size: 13px;
+      line-height: 1.45;
     }
 
     .tabbar {
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
-      bottom: 12px;
-      z-index: 50;
-      width: min(560px, calc(100% - 16px));
-      background: rgba(255,255,255,0.94);
+      bottom: 10px;
+      z-index: 60;
+      width: min(560px, calc(100% - 14px));
+      background: rgba(255,255,255,0.96);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(15,76,129,0.10);
-      border-radius: 24px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 22px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
       padding: 8px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -386,37 +494,53 @@
 
     .tabbar button {
       background: transparent;
-      color: #334155;
-      padding: 10px 8px;
-      border-radius: 16px;
+      color: #54656f;
+      padding: 10px 6px;
+      border-radius: 14px;
       font-size: 12px;
       border: none;
       box-shadow: none;
+      line-height: 1.15;
     }
 
     .tabbar button.active {
-      background: #dbeafe;
-      color: #0f4c81;
+      background: #e7f3ff;
+      color: var(--wa-header);
+      font-weight: bold;
     }
 
     .hidden { display: none !important; }
 
-    .install-tip {
-      padding: 12px;
-      border-radius: 14px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e3a8a;
-      font-size: 13px;
-      line-height: 1.45;
+    .search-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--wa-border);
+      border-radius: 999px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      box-shadow: var(--wa-shadow);
+    }
+
+    .search-pill input {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .search-pill input:focus {
+      box-shadow: none;
     }
 
     @media (min-width: 721px) {
       .app { max-width: 950px; }
+      .screen { padding: 14px; }
       .top-grid {
         display: grid;
         grid-template-columns: 1.1fr .9fr;
-        gap: 14px;
+        gap: 12px;
       }
       .stats { grid-template-columns: repeat(3, 1fr); }
       .setores { grid-template-columns: repeat(6, 1fr); }
@@ -428,18 +552,23 @@
 <body>
   <div class="app">
     <div class="topbar">
-      <div class="hero">
-        <div class="hero-top">
-          <div>
-            <h1>🛠️ HelpDesk Interno Mobile PRO</h1>
-            <p>Registro, triagem e acompanhamento de chamados em formato app</p>
-          </div>
-          <div class="admin-painel">
-            <div id="adminStatus" class="pill">👤 Modo usuário</div>
-            <button id="btnEntrarAdmin" type="button">🔐 Entrar admin</button>
-            <button id="btnSairAdmin" type="button" class="btn-sec hidden">🚪 Sair admin</button>
+      <div class="wa-head">
+        <div class="wa-profile">
+          <div class="wa-avatar">🛠️</div>
+          <div class="wa-title-wrap">
+            <div class="wa-title">HelpDesk Interno Mobile PRO</div>
+            <div class="wa-subtitle">Chamados no estilo WhatsApp</div>
           </div>
         </div>
+
+        <div class="admin-painel">
+          <div id="adminStatus" class="pill">👤 Modo usuário</div>
+        </div>
+      </div>
+
+      <div class="wa-header-actions">
+        <button id="btnEntrarAdmin" type="button" class="wa-mini-btn">🔐 Entrar admin</button>
+        <button id="btnSairAdmin" type="button" class="wa-mini-btn sec hidden">🚪 Sair admin</button>
       </div>
     </div>
 
@@ -449,7 +578,7 @@
       <div class="top-grid">
         <div class="card">
           <h2>📊 Resumo dos chamados</h2>
-          <div class="sub">Contadores rápidos para tela de celular</div>
+          <div class="sub">Visão rápida em formato mobile</div>
           <div class="stats">
             <div class="stat"><div class="num" id="stTotal">0</div><div class="lab">Total</div></div>
             <div class="stat"><div class="num" id="stAguardando">0</div><div class="lab">Aguardando</div></div>
@@ -461,10 +590,10 @@
         </div>
 
         <div class="card">
-          <h2>📲 Instalar como aplicativo</h2>
+          <h2>📲 Instalar como app</h2>
           <div class="install-tip">
-            Depois de publicar no GitHub Pages, abra no Chrome do celular e toque em <strong>Adicionar à tela inicial</strong>.
-            O sistema abrirá como app, sem barra do navegador.
+            Publique no GitHub Pages, abra no celular e toque em <strong>Adicionar à tela inicial</strong>.
+            O HelpDesk abrirá como aplicativo.
           </div>
         </div>
       </div>
@@ -484,8 +613,8 @@
 
     <section id="screen-novo" class="screen">
       <div class="card">
-        <h2>👤 Identificação do solicitante</h2>
-        <div class="sub">Esses dados ficam salvos no navegador para facilitar novos chamados.</div>
+        <h2>👤 Identificação</h2>
+        <div class="sub">Estes dados ficam salvos no aparelho.</div>
 
         <div class="grid-2">
           <div>
@@ -500,7 +629,8 @@
       </div>
 
       <div class="card">
-        <h2>📋 Abrir chamado</h2>
+        <h2>💬 Novo chamado</h2>
+
         <label for="titulo">Título</label>
         <input id="titulo" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
 
@@ -523,17 +653,22 @@
         </div>
 
         <div class="actions">
-          <button id="btnAbrir">Registrar</button>
+          <button id="btnAbrir" class="btn-primary">Enviar chamado</button>
           <button id="btnLimpar" type="button" class="btn-ghost">Limpar</button>
         </div>
       </div>
     </section>
 
     <section id="screen-chamados" class="screen">
+      <div class="search-pill">
+        <span>🔎</span>
+        <input id="busca" placeholder="Buscar por título, nome, matrícula, local..." />
+      </div>
+
       <div class="card">
-        <h2>🔎 Filtros</h2>
+        <h2>📋 Filtros</h2>
+
         <div class="toolbar">
-          <input id="busca" placeholder="Buscar por título, descrição, nome, matrícula, local" />
           <select id="filtroStatus">
             <option value="">Todos os status</option>
             <option value="Aguardando triagem">Aguardando triagem</option>
@@ -542,6 +677,7 @@
             <option value="Finalizado">Finalizado</option>
             <option value="Negado">Negado</option>
           </select>
+
           <select id="filtroSetor">
             <option value="">Todos os setores</option>
             <option value="B1">B1</option>
@@ -551,6 +687,7 @@
             <option value="B5">B5</option>
             <option value="Sseg">Sseg</option>
           </select>
+
           <select id="filtroResponsavel">
             <option value="">Todos os responsáveis</option>
           </select>
@@ -572,8 +709,8 @@
 
     <section id="screen-perfil" class="screen">
       <div class="card">
-        <h2>⚙️ Configurações rápidas</h2>
-        <div class="sub">Use esta tela para conferência e manutenção.</div>
+        <h2>👤 Perfil salvo</h2>
+        <div class="sub">Dados guardados no navegador.</div>
 
         <label>Nome salvo no aparelho</label>
         <input id="perfilNome" disabled />
@@ -588,9 +725,9 @@
       </div>
 
       <div class="card">
-        <h2>🧩 Estrutura usada</h2>
+        <h2>🧩 Estrutura mantida</h2>
         <div class="install-tip">
-          Este app mantém seu banco Supabase, seus campos de triagem, responsável, prioridade, setor e justificativa de negativa.
+          Este layout novo mantém o banco Supabase, triagem, setor, responsável, prioridade e negativa.
         </div>
       </div>
     </section>
@@ -599,7 +736,7 @@
   <nav class="tabbar">
     <button data-screen="home" class="active">🏠<br>Início</button>
     <button data-screen="novo">➕<br>Novo</button>
-    <button data-screen="chamados">📋<br>Chamados</button>
+    <button data-screen="chamados">💬<br>Conversas</button>
     <button data-screen="perfil">👤<br>Perfil</button>
   </nav>
 
