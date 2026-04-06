@@ -405,6 +405,7 @@
     .ticket.media { background: #fffef8; }
     .ticket.baixa { background: #ffffff; }
     .ticket.negado { background: #fff5f5; }
+    .ticket.resolvido { background: #f6fff7; }
 
     .ticket-head {
       display: flex;
@@ -532,6 +533,35 @@
 
     .search-pill input:focus {
       box-shadow: none;
+    }
+
+    .section-label {
+      margin: 10px 0 12px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #ecfdf3;
+      color: #166534;
+      font-weight: bold;
+      font-size: 14px;
+      border: 1px solid #bbf7d0;
+      box-shadow: var(--wa-shadow);
+    }
+
+    .resolved-seal {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     @media (min-width: 721px) {
@@ -799,6 +829,7 @@
     }
 
     function ticketClass(priority, status) {
+      if (status === 'Finalizado') return 'resolvido'
       if (status === 'Negado') return 'negado'
       if (priority === 'Alta') return 'alta'
       if (priority === 'Média') return 'media'
@@ -809,6 +840,10 @@
       if (priority === 'Alta') return 3
       if (priority === 'Média') return 2
       return 1
+    }
+
+    function isResolved(status) {
+      return status === 'Finalizado'
     }
 
     function updateAdminUI() {
@@ -1003,42 +1038,11 @@
       return first + others
     }
 
-    function renderTickets() {
-      const search = $('busca').value.trim().toLowerCase()
-      const statusFilter = $('filtroStatus').value
-      const setorFilter = $('filtroSetor').value
-      const responsavelFilter = $('filtroResponsavel').value
-      const onlyDenied = $('somenteNegados').checked
-
-      let filtered = chamados.filter(c => {
-        const haystack = [
-          c.titulo, c.descricao, c.nome_solicitante, c.matricula_solicitante,
-          c.local, c.setor_responsavel, c.status, c.prioridade,
-          c.observacao_admin, c.responsavel_designado, c.justificativa_negativa
-        ].join(' ').toLowerCase()
-
-        return (
-          (!search || haystack.includes(search)) &&
-          (!statusFilter || c.status === statusFilter) &&
-          (!setorFilter || c.setor_responsavel === setorFilter) &&
-          (!responsavelFilter || c.responsavel_designado === responsavelFilter) &&
-          (!onlyDenied || c.status === 'Negado')
-        )
-      })
-
-      filtered.sort((a, b) => {
-        const p = priorityWeight(b.prioridade) - priorityWeight(a.prioridade)
-        if (p !== 0) return p
-        return new Date(b.created_at) - new Date(a.created_at)
-      })
-
-      if (!filtered.length) {
-        $('lista').innerHTML = `<div class="card">Nenhum chamado encontrado com os filtros atuais.</div>`
-        return
-      }
-
-      $('lista').innerHTML = filtered.map(c => `
+    function buildTicketHTML(c) {
+      return `
         <div class="ticket ${ticketClass(c.prioridade, c.status)}">
+          ${isResolved(c.status) ? `<div class="resolved-seal">✅ Resolvido</div>` : ''}
+
           <div class="ticket-head">
             <div>
               <div class="ticket-title">${escapeHtml(c.titulo || '-')}</div>
@@ -1091,7 +1095,61 @@
             </div>
           ` : ''}
         </div>
-      `).join('')
+      `
+    }
+
+    function renderTickets() {
+      const search = $('busca').value.trim().toLowerCase()
+      const statusFilter = $('filtroStatus').value
+      const setorFilter = $('filtroSetor').value
+      const responsavelFilter = $('filtroResponsavel').value
+      const onlyDenied = $('somenteNegados').checked
+
+      let filtered = chamados.filter(c => {
+        const haystack = [
+          c.titulo, c.descricao, c.nome_solicitante, c.matricula_solicitante,
+          c.local, c.setor_responsavel, c.status, c.prioridade,
+          c.observacao_admin, c.responsavel_designado, c.justificativa_negativa
+        ].join(' ').toLowerCase()
+
+        return (
+          (!search || haystack.includes(search)) &&
+          (!statusFilter || c.status === statusFilter) &&
+          (!setorFilter || c.setor_responsavel === setorFilter) &&
+          (!responsavelFilter || c.responsavel_designado === responsavelFilter) &&
+          (!onlyDenied || c.status === 'Negado')
+        )
+      })
+
+      const ativos = filtered
+        .filter(c => !isResolved(c.status))
+        .sort((a, b) => {
+          const p = priorityWeight(b.prioridade) - priorityWeight(a.prioridade)
+          if (p !== 0) return p
+          return new Date(b.created_at) - new Date(a.created_at)
+        })
+
+      const resolvidos = filtered
+        .filter(c => isResolved(c.status))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+      if (!filtered.length) {
+        $('lista').innerHTML = `<div class="card">Nenhum chamado encontrado com os filtros atuais.</div>`
+        return
+      }
+
+      let html = ''
+
+      if (ativos.length) {
+        html += ativos.map(buildTicketHTML).join('')
+      }
+
+      if (resolvidos.length) {
+        html += `<div class="section-label">✅ Resolvidos</div>`
+        html += resolvidos.map(buildTicketHTML).join('')
+      }
+
+      $('lista').innerHTML = html
     }
 
     async function alterarStatus(id, status) {
@@ -1223,4 +1281,4 @@
     loadTickets(false)
   </script>
 </body>
-</html>
+  </html>
