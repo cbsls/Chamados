@@ -921,7 +921,7 @@
         <div class="sub">Acesso livre para registrar pedidos de melhorias. Preencha o nome e a matrícula/Id Func. se desejar identificar o solicitante.</div>
 
         <div id="loginStatusSolicitante" class="login-status ok">
-          Abertura liberada para qualquer pessoa sem identificação.
+          Abertura liberada para qualquer pessoa com o link.
         </div>
       </div>
 
@@ -1267,7 +1267,6 @@
     function limparUsuarioLocal(mostrarMensagem = true) {
       $('nome').value = ''
       $('matricula').value = ''
-      $('idFuncLogin').value = ''
       atualizarEstadoFormulario()
       clearForm()
       if (mostrarMensagem) {
@@ -1809,11 +1808,6 @@
 
     $('btnLimparIdentificacao').addEventListener('click', () => limparUsuarioLocal(true))
     $('btnRevalidarSolicitante').addEventListener('click', () => trocarTela('novo'))
-
-    $('idFuncLogin').addEventListener('input', (e) => {
-      e.target.value = normalizarIdFunc(e.target.value)
-    })
-
     $('nome').addEventListener('input', () => {
       localStorage.setItem('helpdesk_nome', $('nome').value.trim())
       atualizarEstadoFormulario()
