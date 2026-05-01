@@ -3,82 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>Gestão B4 • Manutenção e Compras</title>
+  <title>Gestão B4 Operacional</title>
   <meta name="theme-color" content="#075E54" />
   <style>
     * { box-sizing: border-box; font-family: Segoe UI, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
     :root {
-      --wa-header: #075E54; --wa-bg: #efeae2; --wa-card: #ffffff; --wa-border: #d1d7db;
-      --wa-text: #111b21; --wa-muted: #667781; --wa-radius: 18px;
+      --wa-header: #075E54; --wa-header-2: #128C7E; --wa-bg: #efeae2; --wa-card: #ffffff;
+      --wa-border: #d1d7db; --wa-text: #111b21; --wa-muted: #667781;
       --st-aguardando: #e7f3ff; --txt-aguardando: #0b57d0;
+      --st-andamento: #ede9fe; --txt-andamento: #6d28d9;
       --st-finalizado: #dcfce7; --txt-finalizado: #166534;
+      --st-negado: #fde7e9; --txt-negado: #b91c1c;
     }
     body { margin: 0; background: linear-gradient(180deg, var(--wa-header) 0 120px, var(--wa-bg) 120px 100%); color: var(--wa-text); min-height: 100vh; }
     .app { max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
-    .topbar { position: sticky; top: 0; z-index: 100; background: #075E54; color: #fff; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-    .screen { display: none; padding: 15px; }
+    .topbar { position: sticky; top: 0; z-index: 100; background: var(--wa-header); color: #fff; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .screen { display: none; padding: 15px; animation: fadeIn 0.3s ease; }
     .screen.active { display: block; }
-    .card { background: var(--wa-card); border-radius: var(--wa-radius); padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-card { background: #f8fafb; border: 1px solid #e9edef; padding: 10px; border-radius: 12px; text-align: center; }
-    .stat-val { font-size: 1.2rem; font-weight: bold; color: var(--wa-header); }
-    label { display: block; margin: 10px 0 5px; font-size: 0.8rem; font-weight: bold; color: #3b4a54; }
-    input, select, textarea { width: 100%; border-radius: 10px; border: 1px solid var(--wa-border); padding: 12px; font-size: 14px; outline: none; }
-    .btn-primary { width: 100%; background: var(--wa-header); color: white; border: none; border-radius: 12px; padding: 15px; font-weight: bold; margin-top: 15px; cursor: pointer; }
-    .tabbar { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 500px; background: #fff; border-radius: 25px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-    .tab-btn { background: none; border: none; color: #54656f; font-size: 0.7rem; padding: 10px 0; cursor: pointer; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .card { background: var(--wa-card); border-radius: 18px; padding: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; border: 1px solid #edf0f2; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { background: #f8fafb; border: 1px solid #e9edef; padding: 12px; border-radius: 15px; text-align: center; }
+    .stat-val { font-size: 1.3rem; font-weight: bold; color: var(--wa-header); }
+    label { display: block; margin: 12px 0 6px; font-size: 0.85rem; font-weight: bold; color: #3b4a54; }
+    input, select, textarea { width: 100%; border-radius: 12px; border: 1px solid var(--wa-border); padding: 12px; font-size: 14px; outline: none; background: #fff; }
+    .btn-primary { width: 100%; background: var(--wa-header); color: white; border: none; border-radius: 12px; padding: 16px; font-weight: bold; margin-top: 15px; cursor: pointer; transition: 0.2s; }
+    .btn-primary:active { background: var(--wa-header-2); transform: scale(0.98); }
+    .tabbar { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 94%; max-width: 500px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 25px; display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 1000; }
+    .tab-btn { background: none; border: none; color: #54656f; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
     .tab-btn.active { color: var(--wa-header); font-weight: bold; }
-    .ticket { background: white; border: 1px solid #e5e7eb; border-radius: 15px; padding: 12px; margin-bottom: 10px; }
-    .badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
-    .money-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px; border-radius: 10px; margin-top: 8px; font-size: 0.8rem; }
+    .ticket { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-bottom: 8px; display: inline-block; }
+    .st-Aguardando { background: var(--st-aguardando); color: var(--txt-aguardando); }
+    .st-Andamento { background: var(--st-andamento); color: var(--txt-andamento); }
+    .st-Finalizado { background: var(--st-finalizado); color: var(--txt-finalizado); }
+    .st-Negado { background: var(--st-negado); color: var(--txt-negado); }
+    .money-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 12px; margin-top: 10px; font-size: 0.85rem; color: #166534; }
+    .admin-tools { margin-top: 15px; padding-top: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; flex-wrap: wrap; }
+    .admin-tools select { width: auto; padding: 6px; font-size: 12px; }
+    .admin-tools input { width: 100px; padding: 6px; font-size: 12px; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="topbar">
-      <div><strong>B4 OPERACIONAL</strong></div>
-      <div id="admin-lock" style="cursor:pointer">👤</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="font-size:1.4rem;">🚒</span>
+        <strong>B4 OPERACIONAL</strong>
+      </div>
+      <div id="admin-lock" style="cursor:pointer; padding:5px; font-size:1.2rem;">👤</div>
     </div>
 
     <section id="screen-home" class="screen active">
       <div class="card">
-        <h2>Dashboard Financeiro</h2>
+        <h2>📊 Resumo Financeiro</h2>
         <div class="stats-grid">
-          <div class="stat-card"><div id="val-investido" class="stat-val">R$ 0,00</div><small>Investido (Mês)</small></div>
-          <div class="stat-card"><div id="val-estimado" class="stat-val">R$ 0,00</div><small>Previsão (Aberto)</small></div>
+          <div class="stat-card">
+            <div id="val-investido" class="stat-val">R$ 0,00</div>
+            <div style="font-size:0.65rem; color:var(--wa-muted); font-weight:bold; text-transform:uppercase;">Investido (Mês)</div>
+          </div>
+          <div class="stat-card">
+            <div id="val-estimado" class="stat-val">R$ 0,00</div>
+            <div style="font-size:0.65rem; color:var(--wa-muted); font-weight:bold; text-transform:uppercase;">Estimado (Aberto)</div>
+          </div>
         </div>
       </div>
-      <div id="resumo-manutencao" class="card">Carregando dados...</div>
+      <div class="card">
+        <h2>🔧 Status de Manutenção</h2>
+        <div id="resumo-manutencao" style="font-size:0.9rem; color:var(--wa-muted);">Carregando dados...</div>
+      </div>
     </section>
 
     <section id="screen-novo" class="screen">
       <div class="card">
-        <label>Tipo de Solicitação</label>
-        <select id="tipo-pedido" onchange="toggleCompra()">
-          <option value="manutencao">🔧 Manutenção</option>
-          <option value="compra">🛒 Compras / Aquisição</option>
+        <h2>📝 Nova Solicitação</h2>
+        <label>Natureza do Pedido</label>
+        <select id="tipo-pedido" onchange="toggleCamposCompra()">
+          <option value="manutencao">🔧 Manutenção / Reparo</option>
+          <option value="compra">🛒 Aquisição / Compra</option>
         </select>
-        <label>Solicitante</label>
-        <select id="solicitante" onchange="setMatricula()"></select>
+        
+        <label>Militar Solicitante</label>
+        <select id="solicitante" onchange="vincularID()"></select>
+        
         <label>ID Funcional</label>
-        <input id="id-func" readonly style="background:#f1f1f1">
+        <input id="id-func" readonly style="background:#f1f2f3; color:#555;">
+
         <label>Título / Objeto</label>
-        <input id="titulo" placeholder="EX: REPARO AR CONDICIONADO" style="text-transform:uppercase">
-        <div id="campo-valor" class="hidden">
+        <input id="titulo" placeholder="EX: REPARO DE TELHADO" style="text-transform:uppercase">
+
+        <div id="extra-compra" class="hidden">
           <label>Valor Estimado (R$)</label>
-          <input id="valor-est" type="number" step="0.01">
+          <input id="valor-estimado" type="number" step="0.01" placeholder="0,00">
         </div>
-        <label>Local</label>
-        <input id="local" style="text-transform:uppercase">
-        <label>Descrição</label>
-        <textarea id="desc" rows="3"></textarea>
-        <button class="btn-primary" onclick="enviar()">ENVIAR CHAMADO</button>
+
+        <label>Local / Destino</label>
+        <input id="local" placeholder="EX: GARAGEM / ALMOXARIFADO" style="text-transform:uppercase">
+
+        <label>Descrição Detalhada</label>
+        <textarea id="desc" rows="3" placeholder="Detalhes técnicos da necessidade..."></textarea>
+
+        <button class="btn-primary" id="btn-enviar" onclick="enviarChamado()">ENVIAR AO B4</button>
       </div>
     </section>
 
-    <section id="screen-manutencao" class="screen"><div id="lista-m"></div></section>
-    <section id="screen-compras" class="screen"><div id="lista-c"></div></section>
+    <section id="screen-manutencao" class="screen">
+      <div class="card">
+        <h2>🔧 Chamados de Manutenção</h2>
+        <div id="lista-m"></div>
+      </div>
+    </section>
+
+    <section id="screen-compras" class="screen">
+      <div class="card">
+        <h2>🛒 Controle de Compras</h2>
+        <div id="lista-c"></div>
+      </div>
+    </section>
 
     <nav class="tabbar">
       <button class="tab-btn active" onclick="nav('home', this)">🏠<br>Início</button>
@@ -104,57 +146,81 @@
       {g:"SD PEGLOW", id:"4783069"}, {g:"SD LARSSON", id:"4490380"}
     ];
 
-    let admin = localStorage.getItem('b4_admin') === 'true';
+    let isAdmin = localStorage.getItem('b4_admin') === 'true';
 
-    window.nav = (id, b) => {
+    window.nav = (id, btn) => {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-'+id).classList.add('active');
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      b.classList.add('active');
-      if(id !== 'novo') load();
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if(id !== 'novo') carregarDados();
     };
 
-    window.toggleCompra = () => {
-      document.getElementById('campo-valor').classList.toggle('hidden', document.getElementById('tipo-pedido').value !== 'compra');
+    window.toggleCamposCompra = () => {
+      const tipo = document.getElementById('tipo-pedido').value;
+      document.getElementById('extra-compra').classList.toggle('hidden', tipo !== 'compra');
     };
 
-    window.setMatricula = () => {
-      const m = MILITARES.find(x => x.g.includes(document.getElementById('solicitante').value));
-      document.getElementById('id-func').value = m ? m.id : '';
+    window.vincularID = () => {
+      const guerra = document.getElementById('solicitante').value;
+      const mil = MILITARES.find(m => m.g === guerra);
+      document.getElementById('id-func').value = mil ? mil.id : '';
     };
 
-    async function load() {
-      const { data } = await supabase.from('chamados').select('*').order('created_at', {ascending:false});
-      if(data) render(data);
+    async function carregarDados() {
+      const { data, error } = await supabase.from('chamados').select('*').order('created_at', {ascending: false});
+      if (!error) renderizarTudo(data);
     }
 
-    function render(dados) {
-      let hM='', hC='', vI=0, vE=0, pM=0;
+    function renderizarTudo(dados) {
+      let htmlM = '', htmlC = '', invMes = 0, estAberto = 0, pendentesM = 0;
+      
       dados.forEach(c => {
         const item = `
           <div class="ticket">
-            <span class="badge" style="background:#eee">${c.status}</span>
-            <b>${c.titulo}</b><br><small>📍 ${c.local} | ${c.nome_solicitante}</small>
-            ${c.tipo==='compra' ? `<div class="money-box">Est: R$ ${c.valor_estimado} | Real: R$ ${c.valor_compra || 0}</div>` : ''}
-            ${admin ? `<br><button onclick="window.upStatus('${c.id}')">Alt. Status</button>` : ''}
+            <span class="badge st-${c.status}">${c.status}</span>
+            <div style="font-weight:bold; font-size:1rem; margin-bottom:5px;">${c.titulo}</div>
+            <div style="font-size:0.8rem; color:#555;">📍 ${c.local} | 👤 ${c.nome_solicitante}</div>
+            ${c.tipo === 'compra' ? `
+              <div class="money-box">
+                <b>Estimado:</b> R$ ${parseFloat(c.valor_estimado || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}<br>
+                <b>Real:</b> R$ ${parseFloat(c.valor_compra || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}
+              </div>
+            ` : ''}
+            ${isAdmin ? `
+              <div class="admin-tools">
+                <select onchange="atualizarStatus('${c.id}', this.value)">
+                  <option value="Aguardando" ${c.status==='Aguardando'?'selected':''}>Triagem</option>
+                  <option value="Andamento" ${c.status==='Andamento'?'selected':''}>Em Curso</option>
+                  <option value="Finalizado" ${c.status==='Finalizado'?'selected':''}>Finalizado</option>
+                  <option value="Negado" ${c.status==='Negado'?'selected':''}>Negado</option>
+                </select>
+                ${c.tipo === 'compra' ? `<input type="number" placeholder="Vlr Real" onblur="atualizarValor('${c.id}', this.value)">` : ''}
+              </div>
+            ` : ''}
           </div>`;
-        if(c.tipo === 'compra') {
-          hC += item;
-          if(c.status === 'Finalizado') vI += parseFloat(c.valor_compra || 0);
-          else vE += parseFloat(c.valor_estimado || 0);
+
+        if (c.tipo === 'manutencao') {
+          htmlM += item;
+          if (c.status !== 'Finalizado') pendentesM++;
         } else {
-          hM += item;
-          if(c.status !== 'Finalizado') pM++;
+          htmlC += item;
+          if (c.status === 'Finalizado') invMes += parseFloat(c.valor_compra || 0);
+          else if (c.status !== 'Negado') estAberto += parseFloat(c.valor_estimado || 0);
         }
       });
-      document.getElementById('lista-m').innerHTML = hM;
-      document.getElementById('lista-c').innerHTML = hC;
-      document.getElementById('val-investido').innerText = 'R$ ' + vI.toFixed(2);
-      document.getElementById('val-estimado').innerText = 'R$ ' + vE.toFixed(2);
-      document.getElementById('resumo-manutencao').innerText = pM + ' manutenções pendentes.';
+
+      document.getElementById('lista-m').innerHTML = htmlM || 'Nenhuma manutenção.';
+      document.getElementById('lista-c').innerHTML = htmlC || 'Nenhuma compra.';
+      document.getElementById('val-investido').innerText = `R$ ${invMes.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+      document.getElementById('val-estimado').innerText = `R$ ${estAberto.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+      document.getElementById('resumo-manutencao').innerText = pendentesM + ' chamados em aberto ou execução.';
     }
 
-    window.enviar = async () => {
+    window.enviarChamado = async () => {
+      const btn = document.getElementById('btn-enviar');
+      btn.disabled = true; btn.innerText = 'ENVIANDO...';
+
       const p = {
         tipo: document.getElementById('tipo-pedido').value,
         nome_solicitante: document.getElementById('solicitante').value,
@@ -162,36 +228,40 @@
         titulo: document.getElementById('titulo').value.toUpperCase(),
         local: document.getElementById('local').value.toUpperCase(),
         descricao: document.getElementById('desc').value,
-        valor_estimado: parseFloat(document.getElementById('valor-est').value || 0),
+        valor_estimado: parseFloat(document.getElementById('valor-estimado').value || 0),
         status: 'Aguardando'
       };
-      await supabase.from('chamados').insert([p]);
-      alert('Enviado!');
-      location.reload();
+
+      const { error } = await supabase.from('chamados').insert([p]);
+      if (!error) { alert('Sucesso!'); location.reload(); }
+      else { alert('Erro ao conectar.'); btn.disabled = false; btn.innerText = 'TENTAR NOVAMENTE'; }
     };
 
-    window.upStatus = async (id) => {
-      const s = prompt("Novo status:");
-      if(s) {
-        let update = { status: s };
-        if(s === 'Finalizado') {
-          const v = prompt("Valor real da compra:");
-          if(v) update.valor_compra = parseFloat(v);
-        }
-        await supabase.from('chamados').update(update).eq('id', id);
-        load();
+    window.atualizarStatus = async (id, status) => {
+      await supabase.from('chamados').update({ status }).eq('id', id);
+      carregarDados();
+    };
+
+    window.atualizarValor = async (id, val) => {
+      if(val) {
+        await supabase.from('chamados').update({ valor_compra: parseFloat(val) }).eq('id', id);
+        carregarDados();
       }
     };
 
     document.getElementById('admin-lock').onclick = () => {
-      if(prompt("Senha:") === '123456') { admin = !admin; localStorage.setItem('b4_admin', admin); location.reload(); }
+      if (prompt('Senha Admin:') === '123456') {
+        isAdmin = !isAdmin;
+        localStorage.setItem('b4_admin', isAdmin);
+        location.reload();
+      }
     };
 
-    // Populando select
+    // Populando lista de militares
     const sel = document.getElementById('solicitante');
-    MILITARES.forEach(m => sel.innerHTML += `<option value="${m.g}">${m.g}</option>`);
-    setMatricula();
-    load();
+    MILITARES.forEach(m => { sel.innerHTML += `<option value="${m.g}">${m.g}</option>`; });
+    vincularID();
+    carregarDados();
   </script>
 </body>
 </html>
