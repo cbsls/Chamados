@@ -978,13 +978,19 @@
         </div>
       </div>
 
-      <div class="card">
-        <h2>💬 Novo chamado</h2>
-        <div class="sub">O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.</div>
+     <div class="card">
+  <h2>💬 Novo chamado</h2>
 
-        <label for="titulo">Título</label>
-        <input id="titulo" class="uppercase-field" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
+  <div class="sub">O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.</div>
 
+  <label>Tipo de chamado</label>
+  <select id="tipo">
+    <option value="manutencao">🛠 Manutenção</option>
+    <option value="compra">💰 Compra</option>
+  </select>
+
+  <label for="titulo">Título</label>
+  <input id="titulo" class="uppercase-field" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
         <label for="descricao">Descrição</label>
         <textarea id="descricao" placeholder="Descreva o problema com detalhes (Opcional)"></textarea>
 
@@ -1032,15 +1038,20 @@
           Somente negados
         </label>
 
-        <div class="actions">
-          <button type="button" class="btn-ghost" id="btnLimparFiltros">Limpar filtros</button>
-          <button type="button" class="btn-sec" id="btnAtualizarLista">Atualizar lista</button>
-        </div>
-      </div>
+       <div class="actions">
+  <button type="button" class="btn-ghost" id="btnLimparFiltros">Limpar filtros</button>
+  <button type="button" class="btn-sec" id="btnAtualizarLista">Atualizar lista</button>
+</div>
+</div>
 
-      <div id="lista"></div>
-    </section>
+<!-- 🔥 ABAS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="trocarAba('manutencao')">🛠 Manutenção</button>
+  <button class="tab-btn" onclick="trocarAba('compra')">💰 Compras</button>
+</div>
 
+<div id="lista"></div>
+</section>
     <section id="screen-perfil" class="screen">
       <div class="card">
         <h2>👤 Perfil do solicitante</h2>
@@ -1121,11 +1132,12 @@
 const $ = (id) => document.getElementById(id)
 
 let chamados = []
+let abaAtual = 'manutencao' // 🔥 ADICIONE ISSO
+
 let adminMode = localStorage.getItem('helpdesk_admin_mode') === 'true'
 let timerUpdater = null
 let homeExpandedState = {}
 let deferredPrompt = null
-
 // 🔥 CORREÇÃO: variável global do usuário logado
 let usuarioLogado = null
 
@@ -1430,6 +1442,7 @@ function formatDateForInput(value) {
 
     async function createTicket() {
       const nome = String($('nome').value || 'NÃO IDENTIFICADO').trim().toUpperCase()
+      const tipo = document.getElementById('tipo').value
       const matricula = normalizarIdFunc($('matricula').value)
       const titulo = String($('titulo').value || '').trim().toUpperCase()
       const descricao = $('descricao').value.trim()
@@ -1445,13 +1458,14 @@ function formatDateForInput(value) {
       try {
         const { error } = await supabase
           .from('chamados')
-          .insert([{
-            nome_solicitante: nome || 'NÃO IDENTIFICADO',
-            matricula_solicitante: matricula || null,
-            titulo,
-            descricao,
-            local,
-            prioridade: PRIORIDADE_PADRAO,
+         .insert([{
+  nome_solicitante: nome || 'NÃO IDENTIFICADO',
+  matricula_solicitante: matricula || null,
+  titulo,
+  descricao,
+  local,
+  tipo: tipo, // 🔥 ADICIONE ESTA LINHA
+  prioridade: PRIORIDADE_PADRAO,
             status: 'Aguardando triagem',
             setor_responsavel: SETOR_FIXO,
             observacao_admin: null,
@@ -1796,24 +1810,27 @@ function renderTickets() {
   const responsavelFilter = $('filtroResponsavel')?.value || ''
   const onlyDenied = $('somenteNegados')?.checked || false
 
-  let filtered = chamados.filter(c => {
-    const haystack = [
-      c.titulo,
-      c.descricao,
-      c.nome_solicitante,
-      c.matricula_solicitante,
-      c.local,
-      c.setor_responsavel,
-      c.status,
-      c.prioridade,
-      c.observacao_admin,
-      c.responsavel_designado,
-      c.justificativa_negativa,
-      c.valor_compra,
-      c.data_compra
-    ]
-      .join(' ')
-      .toLowerCase()
+ let filtered = chamados.filter(c => {
+
+const tipoChamado = String(c.tipo || 'manutencao').toLowerCase()
+if (tipoChamado !== abaAtual) return false
+  const haystack = [
+    c.titulo,
+    c.descricao,
+    c.nome_solicitante,
+    c.matricula_solicitante,
+    c.local,
+    c.setor_responsavel,
+    c.status,
+    c.prioridade,
+    c.observacao_admin,
+    c.responsavel_designado,
+    c.justificativa_negativa,
+    c.valor_compra,
+    c.data_compra
+  ]
+    .join(' ')
+    .toLowerCase()
 
     return (
       (!search || haystack.includes(search)) &&
