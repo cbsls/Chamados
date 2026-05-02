@@ -1034,21 +1034,15 @@
         <label>Matrícula / Id Func. digitada</label>
         <input id="perfilMatricula" readonly />
 
-        <div class="actions">
-          <button id="btnRevalidarSolicitante" class="btn-success" type="button">Ir para novo chamado</button>
-          <button id="btnLimparIdentificacao" class="btn-danger" type="button">Limpar campos</button>
         </div>
-      </div>
-      <section id="screen-compras" class="screen">
+</div>
+</section>
+
+<section id="screen-compras" class="screen">
   <div class="card">
     <h2>🛒 Compras registradas</h2>
     <div class="sub">Lista automática baseada nos chamados com valor informado.</div>
 
-    <div id="listaCompras"></div>
-  </div>
-<section id="screen-compras" class="screen">
-  <div class="card">
-    <h2>🛒 Compras registradas</h2>
     <div id="listaCompras"></div>
   </div>
 </section>
@@ -1602,152 +1596,109 @@ if (elQtd) elQtd.textContent = compras.length
     }
 
     function buildHomeItemHTML(c) {
-      const tempo = getTempoChamado(c)
-      const expanded = !!homeExpandedState[String(c.id)]
+  const tempo = getTempoChamado(c)
+  const expanded = !!homeExpandedState[String(c.id)]
 
-      return `
-        <div class="home-item">
-          <div class="home-item-top">
-            <div class="home-item-top-left">
-              <div class="home-item-titulo">${escapeHtml(c.titulo || '-')}</div>
-              <span class="badge ${statusClass(c.status)}">${escapeHtml(c.status || '-')}</span>
-            </div>
-
-            <div class="home-item-top-right">
-              <button
-                type="button"
-                class="home-toggle-btn"
-                data-home-toggle-btn="${escapeHtml(c.id)}"
-                onclick="toggleHomeDetails('${escapeHtml(c.id)}')"
-              >
-                ${expanded ? '🔼 Recolher' : '🔽 Expandir'}
-              </button>
-            </div>
-          </div>
-
-          <div class="home-item-details ${expanded ? '' : 'hidden'}" data-home-details="${escapeHtml(c.id)}">
-            <div class="mini-badges">
-              <span class="badge ${priorityClass(c.prioridade)}">${escapeHtml(c.prioridade || '-')}</span>
-              <span class="badge">📍 ${escapeHtml(c.local || '-')}</span>
-              <span class="badge">🏢 ${escapeHtml(c.setor_responsavel || 'B4')}</span>
-            </div>
-
-            <div class="timer-box ${tempo.classe}" style="margin-top:10px;">
-              <div class="timer-label">${tempo.label}</div>
-              <div class="timer-value" data-home-timer="${escapeHtml(c.id)}">${tempo.valor}</div>
-            </div>
-
-            <div class="home-item-meta">
-              <div><strong>Abertura:</strong> ${escapeHtml(formatDate(c.created_at))}</div>
-            </div>
-          </div>
+  return `
+    <div class="home-item">
+      <div class="home-item-top">
+        <div class="home-item-top-left">
+          <div class="home-item-titulo">${escapeHtml(c.titulo || '-')}</div>
+          <span class="badge ${statusClass(c.status)}">${escapeHtml(c.status || '-')}</span>
         </div>
-      `
-    }
 
-    function updateHomeToggleAllButton() {
-      const btn = $('btnToggleAllHome')
-      if (!btn) return
+        <div class="home-item-top-right">
+          <button
+            type="button"
+            class="home-toggle-btn"
+            data-home-toggle-btn="${escapeHtml(c.id)}"
+            onclick="toggleHomeDetails('${escapeHtml(c.id)}')"
+          >
+            ${expanded ? '🔼 Recolher' : '🔽 Expandir'}
+          </button>
+        </div>
+      </div>
 
-      const ids = Object.keys(homeExpandedState)
-      if (!ids.length) {
-        btn.textContent = 'Expandir todos'
-        return
-      }
+      <div class="home-item-details ${expanded ? '' : 'hidden'}" data-home-details="${escapeHtml(c.id)}">
+        <div class="mini-badges">
+          <span class="badge ${priorityClass(c.prioridade)}">${escapeHtml(c.prioridade || '-')}</span>
+          <span class="badge">📍 ${escapeHtml(c.local || '-')}</span>
+          <span class="badge">🏢 ${escapeHtml(c.setor_responsavel || 'B4')}</span>
+        </div>
 
-      const todosExpandidos = ids.every(id => homeExpandedState[id] === true)
-      btn.textContent = todosExpandidos ? 'Recolher todos' : 'Expandir todos'
-    }
+        <div class="timer-box ${tempo.classe}" style="margin-top:10px;">
+          <div class="timer-label">${tempo.label}</div>
+          <div class="timer-value" data-home-timer="${escapeHtml(c.id)}">${tempo.valor}</div>
+        </div>
 
-    function setHomeItemExpanded(id, expanded) {
-      homeExpandedState[String(id)] = expanded
+        <div class="home-item-meta">
+          <div><strong>Abertura:</strong> ${escapeHtml(formatDate(c.created_at))}</div>
+        </div>
+      </div>
+    </div>
+  `
+} // 🔥 FECHAMENTO CORRETO AQUI
 
-      const details = document.querySelector(`[data-home-details="${CSS.escape(String(id))}"]`)
-      const btn = document.querySelector(`[data-home-toggle-btn="${CSS.escape(String(id))}"]`)
 
-      if (details) {
-        details.classList.toggle('hidden', !expanded)
-      }
+function renderTickets() {
+  const search = $('busca').value.trim().toLowerCase()
+  const statusFilter = $('filtroStatus').value
+  const setorFilter = $('filtroSetor').value
+  const responsavelFilter = $('filtroResponsavel').value
+  const onlyDenied = $('somenteNegados').checked
 
-      if (btn) {
-        btn.textContent = expanded ? '🔼 Recolher' : '🔽 Expandir'
-      }
+  let filtered = chamados.filter(c => {
+    const haystack = [
+      c.titulo, c.descricao, c.nome_solicitante, c.matricula_solicitante,
+      c.local, c.setor_responsavel, c.status, c.prioridade,
+      c.observacao_admin, c.responsavel_designado, c.justificativa_negativa,
+      c.valor_compra, c.data_compra
+    ].join(' ').toLowerCase()
 
-      updateHomeToggleAllButton()
-    }
+    return (
+      (!search || haystack.includes(search)) &&
+      (!statusFilter || c.status === statusFilter) &&
+      (!setorFilter || c.setor_responsavel === setorFilter) &&
+      (!responsavelFilter || c.responsavel_designado === responsavelFilter) &&
+      (!onlyDenied || c.status === 'Negado')
+    )
+  })
 
-    function toggleHomeDetails(id) {
-      const atual = !!homeExpandedState[String(id)]
-      setHomeItemExpanded(id, !atual)
-    }
+  const ativos = filtered
+    .filter(c => !isResolved(c.status))
+    .sort((a, b) => {
+      const p = priorityWeight(b.prioridade) - priorityWeight(a.prioridade)
+      if (p !== 0) return p
+      return new Date(b.created_at) - new Date(a.created_at)
+    })
 
-    function toggleAllHomeItems() {
-      const ids = Object.keys(homeExpandedState)
-      if (!ids.length) return
+  const resolvidos = filtered
+    .filter(c => isResolved(c.status))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
-      const todosExpandidos = ids.every(id => homeExpandedState[id] === true)
-      const novoEstado = !todosExpandidos
+  if (!filtered.length) {
+    $('lista').innerHTML = `<div class="card">Nenhum chamado encontrado com os filtros atuais.</div>`
+    return
+  }
 
-      ids.forEach(id => {
-        setHomeItemExpanded(id, novoEstado)
-      })
+  let html = ''
 
-      updateHomeToggleAllButton()
-    }
+  if (ativos.length) {
+    html += ativos.map(buildTicketHTML).join('')
+  }
 
-    function renderHomeOpenList() {
-      const container = $('homeListaAbertos')
+  if (resolvidos.length) {
+    html += `<div class="section-label">✅ Resolvidos</div>`
+    html += resolvidos.map(buildTicketHTML).join('')
+  }
 
-      const abertos = chamados
-        .filter(c => c.status !== 'Finalizado')
-        .sort((a, b) => {
-          const p = priorityWeight(b.prioridade) - priorityWeight(a.prioridade)
-          if (p !== 0) return p
-          return new Date(b.created_at) - new Date(a.created_at)
-        })
-        .slice(0, 8)
+  $('lista').innerHTML = html
+  updateTicketTimers()
+  startTimerUpdater()
+}
 
-      const novoEstado = {}
-      abertos.forEach(c => {
-        novoEstado[String(c.id)] = homeExpandedState[String(c.id)] || false
-      })
-      homeExpandedState = novoEstado
 
-      if (!abertos.length) {
-        container.innerHTML = `<div class="home-vazio">Nenhum chamado aberto no momento.</div>`
-        updateHomeToggleAllButton()
-        return
-      }
-
-      container.innerHTML = abertos.map(buildHomeItemHTML).join('')
-      updateHomeTimers()
-      updateHomeToggleAllButton()
-    }
-
-    function renderTickets() {
-      const search = $('busca').value.trim().toLowerCase()
-      const statusFilter = $('filtroStatus').value
-      const setorFilter = $('filtroSetor').value
-      const responsavelFilter = $('filtroResponsavel').value
-      const onlyDenied = $('somenteNegados').checked
-
-      let filtered = chamados.filter(c => {
-        const haystack = [
-          c.titulo, c.descricao, c.nome_solicitante, c.matricula_solicitante,
-          c.local, c.setor_responsavel, c.status, c.prioridade,
-          c.observacao_admin, c.responsavel_designado, c.justificativa_negativa,
-          c.valor_compra, c.data_compra
-        ].join(' ').toLowerCase()
-
-        return (
-          (!search || haystack.includes(search)) &&
-          (!statusFilter || c.status === statusFilter) &&
-          (!setorFilter || c.setor_responsavel === setorFilter) &&
-          (!responsavelFilter || c.responsavel_designado === responsavelFilter) &&
-          (!onlyDenied || c.status === 'Negado')
-        )
-      })
-      function renderCompras() {
+function renderCompras() {
   const lista = document.getElementById('listaCompras')
 
   if (!lista) return
@@ -1781,40 +1732,6 @@ if (elQtd) elQtd.textContent = compras.length
     </div>
   `).join('')
 }
-
-      const ativos = filtered
-        .filter(c => !isResolved(c.status))
-        .sort((a, b) => {
-          const p = priorityWeight(b.prioridade) - priorityWeight(a.prioridade)
-          if (p !== 0) return p
-          return new Date(b.created_at) - new Date(a.created_at)
-        })
-
-      const resolvidos = filtered
-        .filter(c => isResolved(c.status))
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-
-      if (!filtered.length) {
-        $('lista').innerHTML = `<div class="card">Nenhum chamado encontrado com os filtros atuais.</div>`
-        return
-      }
-
-      let html = ''
-
-      if (ativos.length) {
-        html += ativos.map(buildTicketHTML).join('')
-      }
-
-      if (resolvidos.length) {
-        html += `<div class="section-label">✅ Resolvidos</div>`
-        html += resolvidos.map(buildTicketHTML).join('')
-      }
-
-      $('lista').innerHTML = html
-      updateTicketTimers()
-      startTimerUpdater()
-    }
-
     function updateTicketTimers() {
       const nodes = document.querySelectorAll('[data-timer-card]')
       if (!nodes.length) return
@@ -1990,9 +1907,7 @@ if (elQtd) elQtd.textContent = compras.length
     $('somenteNegados').addEventListener('change', renderTickets)
     $('btnLimparFiltros').addEventListener('click', limparFiltros)
     $('btnAtualizarLista').addEventListener('click', () => loadTickets(true))
-
-    $('btnLimparIdentificacao').addEventListener('click', () => limparUsuarioLocal(true))
-    $('btnRevalidarSolicitante').addEventListener('click', () => trocarTela('novo'))
+ 
     $('nome').addEventListener('change', () => {
       localStorage.setItem('helpdesk_nome', $('nome').value.trim())
       atualizarEstadoFormulario()
@@ -2007,8 +1922,7 @@ if (elQtd) elQtd.textContent = compras.length
     $('titulo').addEventListener('input', forceUppercaseField)
     $('local').addEventListener('input', forceUppercaseField)
 
-    $('btnLimparIdentificacao').addEventListener('click', () => limparUsuarioLocal(true))
-
+   
     window.alterarStatus = alterarStatus
     window.handleStatusChange = handleStatusChange
     window.alterarPrioridade = alterarPrioridade
