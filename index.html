@@ -1444,6 +1444,36 @@ function formatDateForInput(value) {
   if (nomesUsados.includes(atual)) filtro.value = atual
 }
 
+async function loadTickets(showToast = true) {
+  try {
+    const { data, error } = await supabase
+      .from('chamados')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error(error)
+      showMessage('Erro ao carregar chamados', 'erro')
+      return
+    }
+
+    chamados = Array.isArray(data) ? data : []
+
+    updateStats()
+    renderHomeOpenList()
+    renderTickets()
+    renderCompras()
+
+    if (showToast) {
+      showMessage('Chamados atualizados', 'ok')
+    }
+
+  } catch (e) {
+    console.error(e)
+    showMessage('Erro de conexão ao carregar chamados', 'erro')
+  }
+}
+
 async function createTicket() {
 
   // 🔒 OBRIGA LOGIN
