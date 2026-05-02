@@ -1501,28 +1501,25 @@ if (elQtd) elQtd.textContent = compras.length
       return first + others
     }
 
-    function purchaseFieldsHTML(c) {
-      const hiddenClass = shouldShowPurchaseFields(c.status) ? '' : 'hidden'
-      return `
-        <div class="admin-compra-fields ${hiddenClass}" data-compra-fields="${escapeHtml(c.id)}">
-          <label for="valor-compra-${escapeHtml(c.id)}">Valor da compra</label>
-          <input id="valor-compra-${escapeHtml(c.id)}" type="text" inputmode="decimal" value="${escapeHtml(c.valor_compra ?? '')}" onblur="alterarValorCompra('${c.id}', this.value)" placeholder="Ex: 150,00" />
+   function purchaseFieldsHTML(c) {
+  const status = String(c.status || '').trim().toLowerCase()
 
-          <label for="data-compra-${escapeHtml(c.id)}">Data da compra</label>
-          <input id="data-compra-${escapeHtml(c.id)}" type="date" value="${escapeHtml(formatDateForInput(c.data_compra))}" onblur="alterarDataCompra('${c.id}', this.value)" />
-        </div>
-      `
-    }
+  const hiddenClass = [
+    'encaminhado',
+    'em andamento',
+    'finalizado'
+  ].includes(status) ? '' : 'hidden'
 
-    function buildTimerHTML(c) {
-      const tempo = getTempoChamado(c)
-      return `
-        <div class="timer-box ${tempo.classe}">
-          <div class="timer-label">${tempo.label}</div>
-          <div class="timer-value" data-timer-card="${escapeHtml(c.id)}">${tempo.valor}</div>
-        </div>
-      `
-    }
+  return `
+    <div class="admin-compra-fields ${hiddenClass}" data-compra-fields="${escapeHtml(c.id)}">
+      <label for="valor-compra-${escapeHtml(c.id)}">Valor da compra</label>
+      <input id="valor-compra-${escapeHtml(c.id)}" type="text" inputmode="decimal" value="${escapeHtml(c.valor_compra ?? '')}" onblur="alterarValorCompra('${c.id}', this.value)" placeholder="Ex: 150,00" />
+
+      <label for="data-compra-${escapeHtml(c.id)}">Data da compra</label>
+      <input id="data-compra-${escapeHtml(c.id)}" type="date" value="${escapeHtml(formatDateForInput(c.data_compra))}" onblur="alterarDataCompra('${c.id}', this.value)" />
+    </div>
+  `
+}
 
     function buildTicketHTML(c) {
       const exibirCompraNaLista = shouldShowPurchaseFields(c.status) && (c.valor_compra !== null && c.valor_compra !== undefined && c.valor_compra !== '' || c.data_compra)
