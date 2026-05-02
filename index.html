@@ -1086,7 +1086,7 @@
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
   const SUPABASE_URL = 'https://azltlpjyyqecurmebffm.supabase.co'
-  const SUPABASE_KEY = 'sb_publishable_ODDfIVnGOb1csV9DA8kURQ_pbKPeQNO'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6bHRscGp5eXFlY3VybWViZmZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwNTk1MjcsImV4cCI6MjA5MDYzNTUyN30._bmJBqjEZKWS18YwiKEjO_MP8WerOyBacuM7FaQRhV0'
   const ADMIN_PASSWORD = '123456'
 
   // ✅ APENAS UMA INSTÂNCIA
@@ -1115,7 +1115,7 @@
 
   const SETOR_FIXO = 'B4'
   const PRIORIDADE_PADRAO = 'Média'
-  const MOSTRAR_IDENTIDADE_SOLICITANTE = false;
+  const MOSTRAR_IDENTIDADE_SOLICITANTE = false
   const STATUS_COM_COMPRA = ['Encaminhado', 'Em andamento', 'Finalizado']
 
   const $ = (id) => document.getElementById(id)
@@ -1126,19 +1126,18 @@
   let homeExpandedState = {}
   let deferredPrompt = null
 
-    function showMessage(text, type = 'ok') {
-      const box = $('mensagem')
-      box.className = `msg ${type}`
-      box.textContent = text
-      box.style.display = 'block'
-      clearTimeout(window.__helpdeskMsgTimer)
-      window.__helpdeskMsgTimer = setTimeout(() => {
-        box.style.display = 'none'
-        box.className = 'msg'
-        box.textContent = ''
-      }, 3500)
-    }
-
+  function showMessage(text, type = 'ok') {
+    const box = $('mensagem')
+    box.className = `msg ${type}`
+    box.textContent = text
+    box.style.display = 'block'
+    clearTimeout(window.__helpdeskMsgTimer)
+    window.__helpdeskMsgTimer = setTimeout(() => {
+      box.style.display = 'none'
+      box.className = 'msg'
+      box.textContent = ''
+    }, 3500)
+  }
     function escapeHtml(text) {
       return String(text ?? '')
         .replaceAll('&', '&amp;')
