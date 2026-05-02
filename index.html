@@ -1615,7 +1615,7 @@ if (elQtd) elQtd.textContent = compras.length
     `
 }
 
-    function buildHomeItemHTML(c) {
+function buildHomeItemHTML(c) {
   const tempo = getTempoChamado(c)
   const expanded = !!homeExpandedState[String(c.id)]
 
@@ -1638,6 +1638,26 @@ if (elQtd) elQtd.textContent = compras.length
           </button>
         </div>
       </div>
+
+      <div class="home-item-details ${expanded ? '' : 'hidden'}" data-home-details="${escapeHtml(c.id)}">
+        <div class="mini-badges">
+          <span class="badge ${priorityClass(c.prioridade)}">${escapeHtml(c.prioridade || '-')}</span>
+          <span class="badge">📍 ${escapeHtml(c.local || '-')}</span>
+          <span class="badge">🏢 ${escapeHtml(c.setor_responsavel || 'B4')}</span>
+        </div>
+
+        <div class="timer-box ${tempo.classe}" style="margin-top:10px;">
+          <div class="timer-label">${tempo.label}</div>
+          <div class="timer-value" data-home-timer="${escapeHtml(c.id)}">${tempo.valor}</div>
+        </div>
+
+        <div class="home-item-meta">
+          <div><strong>Abertura:</strong> ${escapeHtml(formatDate(c.created_at))}</div>
+        </div>
+      </div>
+    </div>
+  `
+}
 
       <div class="home-item-details ${expanded ? '' : 'hidden'}" data-home-details="${escapeHtml(c.id)}">
         <div class="mini-badges">
