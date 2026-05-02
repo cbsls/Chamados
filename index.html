@@ -2175,29 +2175,36 @@ if ('serviceWorker' in navigator) {
 // 🔐 LOGIN (PASSO 1.1)
 // 🔐 LOGIN CORRIGIDO
 async function loginPorIdFunc() {
-  const idFunc = document.getElementById('login-id-func').value.trim()
+  const idFuncInput = document.getElementById('login-id-func').value
+
+  // 🔥 remove espaços e garante string limpa
+  const idFunc = String(idFuncInput || '').trim()
 
   if (!idFunc) {
     alert('Informe o ID Funcional')
     return
   }
 
-  console.log('Buscando usuário:', idFunc)
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('*')
+    .ilike('id_func', `%${idFunc}%`) // 🔥 busca flexível
+    .limit(1)
 
- const { data, error } = await supabase
-  .from('usuarios')
-  .select('*')
-  .ilike('id_func', `%${idFunc}%`) // 🔥 busca flexível (resolve espaço/formato)
-  .limit(1)
+  if (error) {
+    alert('Erro ao consultar usuário')
+    console.error(error)
+    return
+  }
 
-console.log('Resultado:', data, error)
+  if (!data || data.length === 0) {
+    alert('Usuário não encontrado')
+    return
+  }
 
-if (error || !data || data.length === 0) {
-  alert('Usuário não encontrado')
-  return
-}
+  const usuario = data[0]
 
-const usuario = data[0]
+  // 🔥 garante variável global
   usuarioLogado = usuario
 
   localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
