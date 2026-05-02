@@ -2181,21 +2181,20 @@ async function loginPorIdFunc() {
 
   console.log('Buscando usuário:', idFunc)
 
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('*')
-    .eq('id_func', String(idFunc)) // 🔥 GARANTE STRING
-    .limit(1)
+ const { data, error } = await supabase
+  .from('usuarios')
+  .select('*')
+  .ilike('id_func', `%${idFunc}%`) // 🔥 busca flexível (resolve espaço/formato)
+  .limit(1)
 
-  console.log('Resultado:', data, error)
+console.log('Resultado:', data, error)
 
-  if (error || !data || data.length === 0) {
-    alert('Usuário não encontrado')
-    return
-  }
+if (error || !data || data.length === 0) {
+  alert('Usuário não encontrado')
+  return
+}
 
-  const usuario = data[0]
-
+const usuario = data[0]
   usuarioLogado = usuario
 
   localStorage.setItem('usuarioLogado', JSON.stringify(usuario))
