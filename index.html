@@ -2169,7 +2169,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // 🔐 LOGIN (PASSO 1.1)
-function loginPorIdFunc() {
+async function loginPorIdFunc() {
   const idFunc = document.getElementById('login-id-func').value.trim()
 
   if (!idFunc) {
@@ -2177,8 +2177,29 @@ function loginPorIdFunc() {
     return
   }
 
-  alert('Login capturado: ' + idFunc)
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('*')
+    .eq('id_func', idFunc)
+    .single()
+
+  if (error || !data) {
+    alert('Usuário não encontrado')
+    return
+  }
+
+  usuarioLogado = data
+
+  localStorage.setItem('usuarioLogado', JSON.stringify(data))
+
+  document.getElementById('tela-login').classList.add('hidden')
+  document.getElementById('app').classList.remove('hidden')
+
+  loadTickets()
 }
+
+// manter isso
+window.loginPorIdFunc = loginPorIdFunc
 
 // 🔥 TORNA GLOBAL
 window.loginPorIdFunc = loginPorIdFunc
