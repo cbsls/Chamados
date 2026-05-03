@@ -1,4 +1,4 @@
-const CACHE_NAME = 'helpdesk-v41'
+const CACHE_NAME = 'helpdesk-v42'
 
 const FILES_TO_CACHE = [
   './',
@@ -7,7 +7,7 @@ const FILES_TO_CACHE = [
   './icon.png'
 ]
 
-// INSTALAÇÃO
+// 🔹 INSTALAÇÃO
 self.addEventListener('install', (event) => {
   self.skipWaiting()
 
@@ -18,7 +18,7 @@ self.addEventListener('install', (event) => {
   )
 })
 
-// ATIVAÇÃO (REMOVE CACHE ANTIGO)
+// 🔹 ATIVAÇÃO
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -33,17 +33,35 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// FETCH (CACHE + REDE)
+// 🔹 FETCH (CORRIGIDO)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
+  const url = new URL(event.request.url)
+
+  // 🚫 NÃO CACHEAR API (SUPABASE)
+  if (url.pathname.includes('/rest/') || url.hostname.includes('supabase')) {
+    return
+  }
+
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
-        return response
-      })
-      .catch(() => caches.match(event.request))
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request)
+        .then(response => {
+          const clone = response.clone()
+
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, clone)
+          })
+
+          return response
+        })
+        .catch(() => {
+          // 🔥 fallback offline
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html')
+          }
+        })
+    })
   )
 })
