@@ -2320,10 +2320,16 @@ async function loginPorIdFunc() {
   const { data, error } = await supabase
     .from('usuarios')
     .select('id_func, nome, setor')
-    .eq('id_func', idFunc)
-    .single()
+    .eq('id_func', idFunc.trim())
+    .maybeSingle()
 
-  if (error || !data) {
+  if (error) {
+    console.log('Erro Supabase:', error)
+    showMessage('Erro ao consultar usuário', 'erro')
+    return
+  }
+
+  if (!data) {
     showMessage('Usuário não encontrado', 'erro')
     return
   }
