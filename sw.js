@@ -1,10 +1,11 @@
-const CACHE_NAME = 'helpdesk-v43'
+const CACHE_NAME = 'helpdesk-v44'
 
 const FILES_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './icon.png'
+  './icon-192.png',
+  './icon-512.png'
 ]
 
 // 🔹 INSTALAÇÃO
@@ -39,8 +40,12 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url)
 
-  // 🚫 NÃO CACHEAR API (SUPABASE)
-  if (url.pathname.includes('/rest/') || url.hostname.includes('supabase')) {
+  // 🚫 NÃO CACHEAR API (SUPABASE + CLOUDFLARE)
+  if (
+    url.pathname.includes('/rest/') ||
+    url.hostname.includes('supabase') ||
+    url.pathname.includes('/cdn-cgi/')
+  ) {
     return
   }
 
@@ -48,11 +53,18 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then(cached => {
       return cached || fetch(event.request)
         .then(response => {
+
+          // só cachear resposta válida
+          if (!response || response.status !== 200) return response
+
           const clone = response.clone()
 
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, clone)
-          })
+          // cache apenas arquivos do próprio site
+          if (url.origin === location.origin) {
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, clone)
+            })
+          }
 
           return response
         })
