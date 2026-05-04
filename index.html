@@ -8,44 +8,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-body {
-  margin:0;
-  font-family: Arial;
-  background:#0f766e;
-  color:#111;
-}
-
-.header {
-  background:#0f766e;
-  color:#fff;
-  padding:20px;
-}
-
-.card {
-  background:#fff;
-  margin:10px;
-  padding:15px;
-  border-radius:14px;
-}
-
-.btn {
-  background:#2563eb;
-  color:#fff;
-  border:none;
-  padding:10px;
-  border-radius:10px;
-}
-
-.nav {
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#fff;
-  padding:10px;
-}
-
+body { margin:0; font-family: Arial; background:#0f766e; color:#111; }
+.header { background:#0f766e; color:#fff; padding:20px; }
+.card { background:#fff; margin:10px; padding:15px; border-radius:14px; }
+.btn { background:#2563eb; color:#fff; border:none; padding:10px; border-radius:10px; }
+.nav { position:fixed; bottom:0; width:100%; display:flex; justify-content:space-around; background:#fff; padding:10px; }
 .hidden { display:none }
 .item { cursor:pointer }
 </style>
@@ -53,7 +20,6 @@ body {
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="card">
     <h3>Login</h3>
@@ -63,28 +29,22 @@ body {
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="hidden">
 
 <div class="header">
   <h3 id="nome"></h3>
   <h2 id="saldo"></h2>
-  <button id="btnAdmin" class="btn hidden">ADMIN</button>
+  <button id="btnAdmin" class="btn hidden" onclick="ativarAdmin()">ADMIN</button>
 </div>
 
-<!-- HOME -->
 <div id="home">
-
   <div class="card">
     <button class="btn" onclick="abrirNova('Reparo')">Reparo</button>
     <button class="btn" onclick="abrirNova('Compra')">Compra</button>
   </div>
-
   <div id="lista"></div>
-
 </div>
 
-<!-- NOVO -->
 <div id="novo" class="hidden card">
   <h3>Novo Chamado</h3>
 
@@ -100,10 +60,10 @@ body {
   <button class="btn" onclick="criar()">Salvar</button>
 </div>
 
-<!-- MODAL -->
 <div id="modal" class="hidden card">
   <h3 id="mTitulo"></h3>
   <p id="mDesc"></p>
+  <div id="mLink"></div>
 
   <div id="adminArea" class="hidden">
     <select id="mStatus">
@@ -141,6 +101,7 @@ let user = null
 let isAdmin = false
 let chamadoAtual = null
 
+// LOGIN
 async function login() {
   const id = idFunc.value
   const senha = document.getElementById('senha').value
@@ -160,8 +121,7 @@ async function login() {
 
   if (isAdmin) btnAdmin.classList.remove('hidden')
 
-  loginDiv = document.getElementById('login')
-  loginDiv.classList.add('hidden')
+  login.classList.add('hidden')
   app.classList.remove('hidden')
   nav.classList.remove('hidden')
 
@@ -169,11 +129,22 @@ async function login() {
   carregarChamados()
 }
 
-async function carregarSaldo() {
-  const { data } = await supabaseClient.from('financeiro').select('*').single()
-  saldo.innerText = 'R$ ' + Number(data.saldo_atual).toFixed(2)
+// ADMIN MANUAL
+function ativarAdmin() {
+  const senha = prompt('Senha admin:')
+  if (senha === '123456') {
+    isAdmin = true
+    alert('Admin ativo')
+  }
 }
 
+// SALDO
+async function carregarSaldo() {
+  const { data } = await supabaseClient.from('financeiro').select('*').single()
+  saldo.innerText = 'R$ ' + Number(data.saldo_atual || 0).toFixed(2)
+}
+
+// LISTA
 async function carregarChamados() {
   const { data } = await supabaseClient
     .from('chamados')
@@ -182,15 +153,22 @@ async function carregarChamados() {
 
   lista.innerHTML = ''
 
+  if (!data || data.length === 0) {
+    lista.innerHTML = '<div class="card">Sem chamados</div>'
+    return
+  }
+
   data.forEach(c => {
     lista.innerHTML += `
       <div class="card item" onclick="abrirModal('${c.id}')">
         <b>${c.titulo}</b><br>
-        ${c.status}
+        ${c.status}<br>
+        ${c.valor_final ? '💰 R$ '+c.valor_final : ''}
       </div>`
   })
 }
 
+// MODAL
 async function abrirModal(id) {
   const { data } = await supabaseClient
     .from('chamados')
@@ -203,31 +181,52 @@ async function abrirModal(id) {
   mTitulo.innerText = data.titulo
   mDesc.innerText = data.descricao
 
+  mLink.innerHTML = data.link 
+    ? `<a href="${data.link}" target="_blank">🔗 Abrir link</a>` 
+    : ''
+
   modal.classList.remove('hidden')
 
   if (isAdmin) {
     adminArea.classList.remove('hidden')
     mStatus.value = data.status
     mValor.value = data.valor_final || ''
+    mData.value = data.data_execucao || ''
   }
 }
 
+// FECHAR
 function fecharModal() {
   modal.classList.add('hidden')
 }
 
+// SALVAR ADMIN
 async function salvarAdmin() {
+
+  const valor = Number(mValor.value || 0)
+
   await supabaseClient.from('chamados').update({
     status: mStatus.value,
-    valor_final: mValor.value,
+    valor_final: valor,
     data_execucao: mData.value
   }).eq('id', chamadoAtual.id)
 
+  // desconta saldo se finalizado
+  if (mStatus.value === 'Finalizado' || mStatus.value === 'Comprado') {
+    const { data } = await supabaseClient.from('financeiro').select('*').single()
+    let novo = Number(data.saldo_atual) - valor
+    await supabaseClient.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
+  }
+
   fecharModal()
   carregarChamados()
+  carregarSaldo()
 }
 
+// CRIAR
 async function criar() {
+  if (!titulo.value) return alert('Informe o título')
+
   await supabaseClient.from('chamados').insert({
     tipo: tipo.value,
     titulo: titulo.value,
@@ -242,10 +241,10 @@ async function criar() {
   carregarChamados()
 }
 
+// UI
 function show(tela) {
   home.classList.add('hidden')
   novo.classList.add('hidden')
-
   document.getElementById(tela).classList.remove('hidden')
 }
 
