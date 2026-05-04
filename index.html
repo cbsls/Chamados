@@ -981,48 +981,42 @@
             <label for="nome">Nome</label>
             <select id="nome"></select>
           </div>
-          <div>
-            <label for="matricula">Id Func.</label>
-            <input id="matricula" inputmode="numeric" maxlength="20" placeholder="Digite Id Func. (Opcional)" />
           </div>
-        </div>
       </div>
 
      <div class="card">
   <h2>💬 Novo chamado</h2>
 
-  <div class="sub">O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.</div>
+  <div class="sub">
+    O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.
+  </div>
 
-  <label>Tipo de chamado</label>
-  <select id="tipo">
-    <option value="manutencao">🛠 Manutenção</option>
-    <option value="compra">💰 Compra</option>
-  </select>
+  <div class="form-group">
+    <label for="tipo">Tipo do Chamado</label>
+    <select id="tipo" required>
+      <option value="">Selecione</option>
+      <option value="manutencao">🛠 Manutenção</option>
+      <option value="compra">💰 Compra</option>
+    </select>
+  </div>
 
   <label for="titulo">Título</label>
   <input id="titulo" class="uppercase-field" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
-        <label for="descricao">Descrição</label>
-        <textarea id="descricao" placeholder="Descreva o problema com detalhes (Opcional)"></textarea>
 
-        <label for="local">Local</label>
-        <input id="local" class="uppercase-field" placeholder="Ex: COZINHA, SALA 2, CORREDOR" />
+  <label for="descricao">Descrição</label>
+  <textarea id="descricao" placeholder="Descreva o problema com detalhes (Opcional)"></textarea>
 
-        <div class="actions">
-          <button id="btnAbrir" class="btn-primary">Enviar chamado</button>
-          <button id="btnLimpar" type="button" class="btn-ghost">Limpar</button>
-        </div>
-      </div>
-    </section>
+  <label for="local">Local</label>
+  <input id="local" class="uppercase-field" placeholder="Ex: COZINHA, SALA 2, CORREDOR" />
 
-    <section id="screen-chamados" class="screen">
-      <div class="search-pill">
-        <span>🔎</span>
-        <input id="busca" placeholder="Buscar por título, nome, matrícula, local..." />
-      </div>
+  <div class="actions">
+    <button id="btnAbrir" class="btn-primary">Enviar chamado</button>
+    <button id="btnLimpar" type="button" class="btn-ghost">Limpar</button>
+  </div>
+</div>
 
-      <div class="card">
-        <h2>📋 Filtros</h2>
-
+<div class="card">
+  <h2>📋 Filtros</h2>
         <div class="toolbar">
           <select id="filtroStatus">
             <option value="">Todos os status</option>
