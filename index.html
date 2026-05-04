@@ -115,7 +115,8 @@ input, select, textarea {
 
 <script>
 
-const supabase = window.supabase.createClient(
+// 🔥 CLIENTE SUPABASE CORRIGIDO (SEM DUPLICAÇÃO)
+const supabaseClient = window.supabase.createClient(
   'https://azltlpjyyqecurmebffm.supabase.co',
   'sb_publishable_ODDfIVnGOb1csV9DA8kURQ_pbKPeQNO'
 )
@@ -123,7 +124,7 @@ const supabase = window.supabase.createClient(
 let usuario = null
 let isAdmin = false
 
-// LOGIN CORRETO
+// LOGIN
 async function login() {
   const id = document.getElementById('idFunc').value.trim()
   const senha = document.getElementById('senha').value.trim()
@@ -133,7 +134,7 @@ async function login() {
     return
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('usuarios')
     .select('*')
     .eq('id_func', id)
@@ -168,26 +169,26 @@ async function login() {
 
 // SALDO
 async function carregarSaldo() {
-  const { data } = await supabase.from('financeiro').select('*').single()
-  document.getElementById('saldo').innerText = 'R$ ' + Number(data.saldo_atual).toFixed(2)
+  const { data } = await supabaseClient.from('financeiro').select('*').single()
+  document.getElementById('saldo').innerText = 'R$ ' + Number(data.saldo_atual || 0).toFixed(2)
 }
 
 async function addSaldo() {
   const valor = prompt('Valor para adicionar:')
-  if (!valor) return
+  if (!valor || isNaN(valor)) return
 
-  const { data } = await supabase.from('financeiro').select('*').single()
+  const { data } = await supabaseClient.from('financeiro').select('*').single()
 
-  let novo = Number(data.saldo_atual) + Number(valor)
+  let novo = Number(data.saldo_atual || 0) + Number(valor)
 
-  await supabase.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
+  await supabaseClient.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
 
   carregarSaldo()
 }
 
 // CHAMADOS
 async function carregarChamados() {
-  const { data } = await supabase
+  const { data } = await supabaseClient
     .from('chamados')
     .select('*')
     .order('data_criacao', { ascending: false })
@@ -222,9 +223,13 @@ async function carregarChamados() {
 
 // CRIAR
 async function criar() {
-  await supabase.from('chamados').insert({
+
+  const titulo = document.getElementById('titulo').value.trim()
+  if (!titulo) return alert('Informe o título')
+
+  await supabaseClient.from('chamados').insert({
     tipo: document.getElementById('tipo').value,
-    titulo: document.getElementById('titulo').value,
+    titulo: titulo,
     descricao: document.getElementById('descricao').value,
     link: document.getElementById('link').value,
     status: 'Aberto',
@@ -239,19 +244,19 @@ async function criar() {
 // STATUS + DESCONTO
 async function updateStatus(id, status) {
 
-  await supabase.from('chamados').update({ status }).eq('id', id)
+  await supabaseClient.from('chamados').update({ status }).eq('id', id)
 
   if (status === 'Reparado' || status === 'Comprado') {
     const valor = prompt('Valor final:')
 
-    if (!valor) return
+    if (!valor || isNaN(valor)) return
 
-    const { data } = await supabase.from('financeiro').select('*').single()
-    let novo = Number(data.saldo_atual) - Number(valor)
+    const { data } = await supabaseClient.from('financeiro').select('*').single()
+    let novo = Number(data.saldo_atual || 0) - Number(valor)
 
-    await supabase.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
+    await supabaseClient.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
 
-    await supabase.from('chamados').update({
+    await supabaseClient.from('chamados').update({
       valor_final: valor,
       data_execucao: new Date()
     }).eq('id', id)
@@ -262,9 +267,10 @@ async function updateStatus(id, status) {
   carregarChamados()
 }
 
-// VALOR ORÇAMENTO
+// ORÇAMENTO
 async function updateValor(id, valor) {
-  await supabase.from('chamados').update({ valor_orcamento: valor }).eq('id', id)
+  if (!valor || isNaN(valor)) return
+  await supabaseClient.from('chamados').update({ valor_orcamento: valor }).eq('id', id)
 }
 
 // UI
