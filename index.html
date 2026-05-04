@@ -188,10 +188,21 @@ async function addSaldo() {
 
 // CHAMADOS
 async function carregarChamados() {
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('chamados')
     .select('*')
-    .order('data_criacao', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error(error)
+    alert('Erro ao carregar chamados')
+    return
+  }
+
+  if (!data || data.length === 0) {
+    document.getElementById('lista').innerHTML = '<div class="card">Nenhum chamado</div>'
+    return
+  }
 
   let html = ''
 
@@ -202,19 +213,6 @@ async function carregarChamados() {
       <b>${c.titulo}</b><br>
       ${c.descricao || ''}<br>
       ${c.valor_final ? '💰 R$ '+c.valor_final : ''}
-
-      ${isAdmin ? `
-        <br>
-        <select onchange="updateStatus('${c.id}', this.value)">
-          <option ${c.status=='Aberto'?'selected':''}>Aberto</option>
-          <option ${c.status=='Em Orçamento'?'selected':''}>Em Orçamento</option>
-          <option ${c.status=='Reparado'?'selected':''}>Reparado</option>
-          <option ${c.status=='Comprado'?'selected':''}>Comprado</option>
-          <option ${c.status=='Finalizado'?'selected':''}>Finalizado</option>
-        </select>
-
-        <input placeholder="Valor orçamento" onchange="updateValor('${c.id}', this.value)">
-      ` : ''}
     </div>`
   })
 
