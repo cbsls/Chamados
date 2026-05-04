@@ -8,32 +8,70 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
+
 body {
   margin:0;
-  font-family: Arial;
+  font-family: system-ui;
   background:#0f766e;
 }
 
+/* HEADER */
 .header {
   color:#fff;
-  padding:20px;
+  padding:25px;
 }
 
+.saldo {
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* CARD */
 .card {
   background:#fff;
-  margin:10px;
-  padding:15px;
-  border-radius:16px;
+  margin:12px;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* LISTA */
+.item {
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:10px;
+  background:#f9fafb;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.item:hover {
+  transform:scale(1.02);
+}
+
+/* STATUS */
+.status {
+  font-size:12px;
+  padding:4px 8px;
+  border-radius:8px;
+  display:inline-block;
+  margin-top:5px;
+}
+
+.aberto { background:#dbeafe }
+.andamento { background:#fde68a }
+.finalizado { background:#bbf7d0 }
+
+/* BOTÃO */
 .btn {
   background:#2563eb;
   color:#fff;
   border:none;
   padding:10px;
-  border-radius:10px;
+  border-radius:12px;
 }
 
+/* NAV */
 .nav {
   position:fixed;
   bottom:0;
@@ -41,91 +79,58 @@ body {
   background:#fff;
   display:flex;
   justify-content:space-around;
-  padding:10px;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.2);
+  padding:12px;
+  box-shadow:0 -4px 10px rgba(0,0,0,0.2);
 }
 
-.nav button {
-  border:none;
-  background:none;
+/* MODAL */
+.modal {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#fff;
+  padding:20px;
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -5px 15px rgba(0,0,0,0.3);
 }
 
 .hidden { display:none }
 
-.status {
-  padding:4px 8px;
-  border-radius:8px;
-  font-size:12px;
-  display:inline-block;
-}
-
-.aberto { background:#dbeafe }
-.andamento { background:#fde68a }
-.finalizado { background:#bbf7d0 }
-
-.dashboard {
-  display:grid;
-  grid-template-columns: repeat(3,1fr);
-  gap:10px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="card">
     <h3>Login</h3>
-    <input id="idFunc" placeholder="ID">
-    <input id="senha" type="password" placeholder="Senha">
+    <input id="idFunc" placeholder="ID"><br><br>
+    <input id="senha" type="password" placeholder="Senha"><br><br>
     <button class="btn" onclick="login()">Entrar</button>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="hidden">
 
 <div class="header">
   <h3 id="nome"></h3>
-  <h2 id="saldo"></h2>
+  <div class="saldo" id="saldo"></div>
   <button id="btnAdmin" class="btn hidden" onclick="ativarAdmin()">ADMIN</button>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="card">
-  <h3>Resumo</h3>
-  <div class="dashboard">
-    <div><b id="dTotal">0</b><br>Total</div>
-    <div><b id="dAberto">0</b><br>Aberto</div>
-    <div><b id="dFinal">0</b><br>Finalizado</div>
-  </div>
-</div>
-
-<!-- LISTA -->
 <div id="lista"></div>
 
-<!-- NOVO -->
 <div id="novo" class="hidden card">
-  <h3>Novo Chamado</h3>
-
-  <select id="tipo">
-    <option>Reparo</option>
-    <option>Compra</option>
-  </select>
-
-  <input id="titulo" placeholder="Título">
-  <textarea id="descricao"></textarea>
-  <input id="link" placeholder="Link">
-
+  <h3>Novo</h3>
+  <input id="titulo" placeholder="Título"><br><br>
+  <textarea id="descricao"></textarea><br><br>
   <button class="btn" onclick="criar()">Salvar</button>
 </div>
 
 <!-- MODAL -->
-<div id="modal" class="hidden card">
+<div id="modal" class="modal hidden">
   <h3 id="mTitulo"></h3>
   <p id="mDesc"></p>
-  <div id="mLink"></div>
 
   <div id="adminArea" class="hidden">
     <select id="mStatus">
@@ -134,10 +139,10 @@ body {
       <option>Reparado</option>
       <option>Comprado</option>
       <option>Finalizado</option>
-    </select>
+    </select><br><br>
 
-    <input id="mValor" placeholder="Valor">
-    <input id="mData" type="date">
+    <input id="mValor" placeholder="Valor"><br><br>
+    <input id="mData" type="date"><br><br>
 
     <button class="btn" onclick="salvarAdmin()">Salvar</button>
   </div>
@@ -147,11 +152,9 @@ body {
 
 </div>
 
-<!-- NAV -->
 <div class="nav hidden" id="nav">
-  <button onclick="show('dashboard')">🏠</button>
-  <button onclick="show('lista')">📋</button>
-  <button onclick="show('novo')">➕</button>
+  <button onclick="mostrarLista()">🏠</button>
+  <button onclick="mostrarNovo()">➕</button>
 </div>
 
 <script>
@@ -163,7 +166,7 @@ const supabaseClient = window.supabase.createClient(
 
 let user = null
 let isAdmin = false
-let chamadoAtual = null
+let atual = null
 
 async function login() {
 
@@ -176,19 +179,14 @@ async function login() {
     .eq('id_func', id)
     .single()
 
-  if (!data || data.senha !== senha) {
-    alert('Erro login')
-    return
-  }
+  if (!data || data.senha !== senha) return alert('Erro login')
 
   user = data
   isAdmin = data.tipo === 'admin'
 
   document.getElementById('nome').innerText = data.nome_guerra || data.nome
 
-  if (isAdmin) {
-    document.getElementById('btnAdmin').classList.remove('hidden')
-  }
+  if (isAdmin) document.getElementById('btnAdmin').classList.remove('hidden')
 
   document.getElementById('login').classList.add('hidden')
   document.getElementById('app').classList.remove('hidden')
@@ -198,115 +196,109 @@ async function login() {
   carregarChamados()
 }
 
-function ativarAdmin() {
-  if (prompt('Senha admin') === '123456') {
+function ativarAdmin(){
+  if(prompt('Senha admin')==='123456'){
     isAdmin = true
-    alert('Admin ativo')
+    alert('Admin ativado')
   }
 }
 
-async function carregarSaldo() {
+async function carregarSaldo(){
   const { data } = await supabaseClient.from('financeiro').select('*').single()
-  document.getElementById('saldo').innerText = 'R$ ' + Number(data.saldo_atual || 0).toFixed(2)
+  document.getElementById('saldo').innerText = 'R$ '+Number(data.saldo_atual).toFixed(2)
 }
 
-async function carregarChamados() {
+async function carregarChamados(){
+
   const { data } = await supabaseClient
     .from('chamados')
     .select('*')
-    .order('id', { ascending:false })
+    .order('id',{ascending:false})
 
-  let total=0, aberto=0, finalizado=0
-
+  const lista = document.getElementById('lista')
   lista.innerHTML = ''
 
   data.forEach(c => {
-    total++
-    if(c.status === 'Aberto') aberto++
-    if(c.status === 'Finalizado') finalizado++
 
-    lista.innerHTML += `
-      <div class="card" onclick="abrirModal('${c.id}')">
-        <b>${c.titulo}</b><br>
-        <span class="status">${c.status}</span><br>
-        ${c.valor_final ? '💰 R$ '+c.valor_final : ''}
-      </div>`
+    let classe = 'aberto'
+    if(c.status==='Finalizado') classe='finalizado'
+    if(c.status==='Em Orçamento') classe='andamento'
+
+    const div = document.createElement('div')
+    div.className = 'item'
+    div.innerHTML = `
+      <b>${c.titulo}</b><br>
+      <span class="status ${classe}">${c.status}</span>
+    `
+
+    div.onclick = () => abrirModal(c.id)
+
+    lista.appendChild(div)
   })
-
-  dTotal.innerText = total
-  dAberto.innerText = aberto
-  dFinal.innerText = finalizado
 }
 
-async function abrirModal(id) {
+async function abrirModal(id){
+
   const { data } = await supabaseClient
     .from('chamados')
     .select('*')
     .eq('id', id)
     .single()
 
-  chamadoAtual = data
+  atual = data
 
-  mTitulo.innerText = data.titulo
-  mDesc.innerText = data.descricao
-  mLink.innerHTML = data.link ? `<a href="${data.link}" target="_blank">🔗 Link</a>` : ''
+  document.getElementById('mTitulo').innerText = data.titulo
+  document.getElementById('mDesc').innerText = data.descricao
 
-  modal.classList.remove('hidden')
+  document.getElementById('modal').classList.remove('hidden')
 
-  if (isAdmin) {
-    adminArea.classList.remove('hidden')
-    mStatus.value = data.status
-    mValor.value = data.valor_final || ''
-    mData.value = data.data_execucao || ''
+  if(isAdmin){
+    document.getElementById('adminArea').classList.remove('hidden')
+    document.getElementById('mStatus').value = data.status
   }
 }
 
-function fecharModal() {
-  modal.classList.add('hidden')
+function fecharModal(){
+  document.getElementById('modal').classList.add('hidden')
 }
 
-async function salvarAdmin() {
+async function salvarAdmin(){
 
-  const valor = Number(mValor.value || 0)
+  const valor = Number(document.getElementById('mValor').value || 0)
 
   await supabaseClient.from('chamados').update({
-    status: mStatus.value,
+    status: document.getElementById('mStatus').value,
     valor_final: valor,
-    data_execucao: mData.value
-  }).eq('id', chamadoAtual.id)
-
-  if (mStatus.value === 'Finalizado' || mStatus.value === 'Comprado') {
-    const { data } = await supabaseClient.from('financeiro').select('*').single()
-    let novo = Number(data.saldo_atual) - valor
-    await supabaseClient.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
-  }
+    data_execucao: document.getElementById('mData').value
+  }).eq('id', atual.id)
 
   fecharModal()
   carregarChamados()
   carregarSaldo()
 }
 
-async function criar() {
+async function criar(){
+
   await supabaseClient.from('chamados').insert({
-    tipo: tipo.value,
-    titulo: titulo.value,
-    descricao: descricao.value,
-    link: link.value,
-    status: 'Aberto',
-    id_usuario: user.id
+    titulo: document.getElementById('titulo').value,
+    descricao: document.getElementById('descricao').value,
+    status:'Aberto',
+    id_usuario:user.id
   })
 
   alert('Criado')
-  show('lista')
+  mostrarLista()
   carregarChamados()
 }
 
-function show(tela) {
-  dashboard.classList.add('hidden')
-  lista.classList.add('hidden')
-  novo.classList.add('hidden')
+function mostrarNovo(){
+  document.getElementById('novo').classList.remove('hidden')
+  document.getElementById('lista').classList.add('hidden')
+}
 
-  document.getElementById(tela).classList.remove('hidden')
+function mostrarLista(){
+  document.getElementById('novo').classList.add('hidden')
+  document.getElementById('lista').classList.remove('hidden')
 }
 
 </script>
