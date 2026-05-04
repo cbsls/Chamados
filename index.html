@@ -1591,6 +1591,12 @@ async function createTicket() {
     showMessage('Faça login para abrir um chamado.', 'erro')
     return
   }
+  const tipo = document.getElementById('tipo').value
+
+if (!tipo) {
+  showMessage('Selecione o tipo do chamado.', 'erro')
+  return
+}
 
   const nome = String(usuarioLogado.nome || '').toUpperCase()
   const matricula = usuarioLogado.id_func || null
