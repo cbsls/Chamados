@@ -1584,7 +1584,7 @@ async function loadTickets(showToast = true) {
 }
 
 
- // 🔥 CRIAR CHAMADO (VERSÃO FINAL - SEM DUPLICAÇÃO)
+// 🔥 CRIAR CHAMADO (VERSÃO FINAL - SEM DUPLICAÇÃO)
 async function createTicket() {
 
   if (!usuarioLogado) {
@@ -1600,12 +1600,12 @@ async function createTicket() {
     return
   }
 
-  const nome = String(usuarioLogado.nome || '').toUpperCase()
-  const matricula = usuarioLogado.id_func || null
+  const nome = String(usuarioLogado?.nome || '').toUpperCase()
+  const matricula = usuarioLogado?.id_func || null
 
-  const titulo = String($('titulo').value || '').trim().toUpperCase()
-  const descricao = $('descricao').value.trim()
-  const local = String($('local').value || '').trim().toUpperCase()
+  const titulo = String($('titulo')?.value || '').trim().toUpperCase()
+  const descricao = String($('descricao')?.value || '').trim()
+  const local = String($('local')?.value || '').trim().toUpperCase()
 
   if (!titulo) {
     showMessage('Preencha o título do chamado.', 'erro')
@@ -1636,16 +1636,17 @@ async function createTicket() {
       return
     }
 
-    clearForm()
+    if (typeof clearForm === 'function') clearForm()
     await loadTickets(false)
     showMessage('Chamado registrado com sucesso.', 'ok')
-    trocarTela('chamados')
+    if (typeof trocarTela === 'function') trocarTela('chamados')
 
   } catch (e) {
     console.error(e)
     showMessage('Erro de conexão ao registrar chamado.', 'erro')
   }
 }
+
 
 // 🔥 ATUALIZA ESTATÍSTICAS
 function updateStats() {
@@ -1714,7 +1715,11 @@ function responsavelOptions(selectedValue = '') {
 window.loadTickets = loadTickets
 window.createTicket = createTicket
 window.responsavelOptions = responsavelOptions
-window.loginPorIdFunc = loginPorIdFunc
+
+if (typeof loginPorIdFunc !== 'undefined') {
+  window.loginPorIdFunc = loginPorIdFunc
+}
+
 window.trocarAba = trocarAba
 window.logout = logout
 
