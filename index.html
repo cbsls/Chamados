@@ -7,6 +7,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+
 <style>
 body {
   margin:0;
@@ -67,7 +70,7 @@ input, select, textarea {
   <div class="card">
     <h3>Login</h3>
     <input id="idFunc" placeholder="ID Funcional">
-    <input id="senha" placeholder="Senha (admin)" type="password">
+    <input id="senha" placeholder="Senha" type="password">
     <button onclick="login()">Entrar</button>
   </div>
 </div>
@@ -81,16 +84,13 @@ input, select, textarea {
     <button onclick="addSaldo()" id="btnSaldo" class="hidden">+ Saldo</button>
   </div>
 
-  <!-- CARDS -->
   <div class="card">
-    <button onclick="abrirNova('Reparo')">Solicitação de Reparo</button>
-    <button onclick="abrirNova('Compra')">Solicitação de Compra</button>
+    <button onclick="abrirNova('Reparo')">🛠️ Reparo</button>
+    <button onclick="abrirNova('Compra')">🛒 Compra</button>
   </div>
 
-  <!-- LISTA -->
   <div id="lista"></div>
 
-  <!-- NOVA -->
   <div id="nova" class="card hidden">
     <h3>Nova Solicitação</h3>
 
@@ -123,32 +123,44 @@ const supabase = window.supabase.createClient(
 let usuario = null
 let isAdmin = false
 
-// LOGIN
+// LOGIN CORRETO
 async function login() {
-  const id = document.getElementById('idFunc').value
-  const senha = document.getElementById('senha').value
+  const id = document.getElementById('idFunc').value.trim()
+  const senha = document.getElementById('senha').value.trim()
 
-  const { data } = await supabase
+  if (!id || !senha) {
+    alert('Informe ID e senha')
+    return
+  }
+
+  const { data, error } = await supabase
     .from('usuarios')
     .select('*')
-    .eq('id_funcional', id)
+    .eq('id_func', id)
     .single()
 
-  if (!data) return alert('Usuário não encontrado')
+  if (error || !data) {
+    alert('Usuário não encontrado')
+    return
+  }
 
-  if (data.tipo === 'admin') {
-    if (senha !== '123456') return alert('Senha inválida')
-    isAdmin = true
-    document.getElementById('btnSaldo').classList.remove('hidden')
+  if (data.senha !== senha) {
+    alert('Senha incorreta')
+    return
   }
 
   usuario = data
+  isAdmin = data.tipo === 'admin'
+
+  document.getElementById('nomeUser').innerText = data.nome_guerra || data.nome
+
+  if (isAdmin) {
+    document.getElementById('btnSaldo').classList.remove('hidden')
+  }
 
   document.getElementById('login').classList.add('hidden')
   document.getElementById('app').classList.remove('hidden')
   document.getElementById('nav').classList.remove('hidden')
-
-  document.getElementById('nomeUser').innerText = data.nome
 
   carregarSaldo()
   carregarChamados()
@@ -157,7 +169,7 @@ async function login() {
 // SALDO
 async function carregarSaldo() {
   const { data } = await supabase.from('financeiro').select('*').single()
-  document.getElementById('saldo').innerText = 'R$ ' + data.saldo_atual
+  document.getElementById('saldo').innerText = 'R$ ' + Number(data.saldo_atual).toFixed(2)
 }
 
 async function addSaldo() {
@@ -166,7 +178,7 @@ async function addSaldo() {
 
   const { data } = await supabase.from('financeiro').select('*').single()
 
-  let novo = parseFloat(data.saldo_atual) + parseFloat(valor)
+  let novo = Number(data.saldo_atual) + Number(valor)
 
   await supabase.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
 
@@ -178,7 +190,7 @@ async function carregarChamados() {
   const { data } = await supabase
     .from('chamados')
     .select('*')
-    .order('id', { ascending: false })
+    .order('data_criacao', { ascending: false })
 
   let html = ''
 
@@ -187,8 +199,8 @@ async function carregarChamados() {
     <div class="card">
       <b>${c.tipo}</b> - ${c.status}<br>
       <b>${c.titulo}</b><br>
-      ${c.descricao}<br>
-      ${c.valor_final ? 'R$ '+c.valor_final : ''}
+      ${c.descricao || ''}<br>
+      ${c.valor_final ? '💰 R$ '+c.valor_final : ''}
 
       ${isAdmin ? `
         <br>
@@ -200,7 +212,7 @@ async function carregarChamados() {
           <option ${c.status=='Finalizado'?'selected':''}>Finalizado</option>
         </select>
 
-        <input placeholder="Valor" onchange="updateValor('${c.id}', this.value)">
+        <input placeholder="Valor orçamento" onchange="updateValor('${c.id}', this.value)">
       ` : ''}
     </div>`
   })
@@ -219,11 +231,12 @@ async function criar() {
     id_usuario: usuario.id
   })
 
-  alert('Criado!')
+  alert('Solicitação criada!')
+  mostrarHome()
   carregarChamados()
 }
 
-// UPDATE STATUS
+// STATUS + DESCONTO
 async function updateStatus(id, status) {
 
   await supabase.from('chamados').update({ status }).eq('id', id)
@@ -231,8 +244,10 @@ async function updateStatus(id, status) {
   if (status === 'Reparado' || status === 'Comprado') {
     const valor = prompt('Valor final:')
 
+    if (!valor) return
+
     const { data } = await supabase.from('financeiro').select('*').single()
-    let novo = data.saldo_atual - valor
+    let novo = Number(data.saldo_atual) - Number(valor)
 
     await supabase.from('financeiro').update({ saldo_atual: novo }).eq('id', 1)
 
@@ -247,7 +262,7 @@ async function updateStatus(id, status) {
   carregarChamados()
 }
 
-// UPDATE VALOR
+// VALOR ORÇAMENTO
 async function updateValor(id, valor) {
   await supabase.from('chamados').update({ valor_orcamento: valor }).eq('id', id)
 }
@@ -264,6 +279,11 @@ function mostrarHome() {
 function abrirNova(tipo) {
   mostrarNova()
   document.getElementById('tipo').value = tipo
+}
+
+// SERVICE WORKER
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
 }
 
 </script>
