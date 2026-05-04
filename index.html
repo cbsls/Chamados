@@ -906,46 +906,56 @@
     🛡️
   </button>
 
-  <button type="button" onclick="logout()" class="wa-mini-btn sec compact" title="Sair">
-    🚪
-  </button>
+ <button type="button" onclick="logout()" class="wa-mini-btn sec compact" title="Sair">
+  🚪
+</button>
 
 </div>
 
-    <section id="screen-home" class="screen active">
-      <div class="top-grid">
-        <div class="card">
-          <h2>📊 Resumo dos chamados</h2>
-          <div class="sub">Toque em uma caixa para abrir a lista completa na aba Chamados.</div>
-          <div class="stats">
-            <div class="stat" data-status="">
-              <div class="num" id="stTotal">0</div>
-              <div class="lab">Total</div>
-            </div>
-            <div class="stat" data-status="Aguardando triagem">
-              <div class="num" id="stAguardando">0</div>
-              <div class="lab">Aguardando</div>
-            </div>
-            <div class="stat" data-status="Encaminhado">
-              <div class="num" id="stEncaminhado">0</div>
-              <div class="lab">Encaminhado</div>
-            </div>
-            <div class="stat" data-status="Em andamento">
-              <div class="num" id="stAndamento">0</div>
-              <div class="lab">Em andamento</div>
-            </div>
-            <div class="stat" data-status="Finalizado">
-              <div class="num" id="stFinalizado">0</div>
-              <div class="lab">Finalizado</div>
-            </div>
-            <div class="stat" data-status="Negado">
-              <div class="num" id="stNegado">0</div>
-              <div class="lab">Negado</div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
+<section id="screen-home" class="screen active">
+  <div class="top-grid">
+
+```
+<div class="card">
+  <h2>📊 Resumo dos chamados</h2>
+  <div class="sub">Toque em uma caixa para abrir a lista completa na aba Chamados.</div>
+
+  <div class="stats">
+    <div class="stat" data-status="">
+      <div class="num" id="stTotal">0</div>
+      <div class="lab">Total</div>
+    </div>
+
+    <div class="stat" data-status="Aguardando triagem">
+      <div class="num" id="stAguardando">0</div>
+      <div class="lab">Aguardando</div>
+    </div>
+
+    <div class="stat" data-status="Encaminhado">
+      <div class="num" id="stEncaminhado">0</div>
+      <div class="lab">Encaminhado</div>
+    </div>
+
+    <div class="stat" data-status="Em andamento">
+      <div class="num" id="stAndamento">0</div>
+      <div class="lab">Em andamento</div>
+    </div>
+
+    <div class="stat" data-status="Finalizado">
+      <div class="num" id="stFinalizado">0</div>
+      <div class="lab">Finalizado</div>
+    </div>
+
+    <div class="stat" data-status="Negado">
+      <div class="num" id="stNegado">0</div>
+      <div class="lab">Negado</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
   <h2>💰 Controle de Compras</h2>
+
   <div class="stats">
     <div class="stat">
       <div class="num" id="totalCompras">R$ 0</div>
@@ -959,47 +969,57 @@
   </div>
 </div>
 
-        <div class="card">
-        <h2>📋 Chamados abertos</h2>
-        <div class="sub">Resumo rápido dos chamados que ainda não foram finalizados.</div>
-        <div class="home-actions">
-          <button id="btnToggleAllHome" type="button" class="home-toggle-all-btn">Expandir todos</button>
-        </div>
-        <div id="homeListaAbertos" class="home-lista"></div>
-      </div>
+<div class="card">
+  <h2>📋 Chamados abertos</h2>
+  <div class="sub">Resumo rápido dos chamados que ainda não foram finalizados.</div>
 
-      <button id="btnInstalarApp" type="button" class="btn-install hidden">📲 Instalar app</button>
-    </section>
-
-    <section id="screen-novo" class="screen">
-      <div class="card">
-        <h2>👤 Dados do solicitante</h2>
-        <div class="sub">Selecione o militar cadastrado. Caso necessário, mantenha a opção “NÃO IDENTIFICADO”.</div>
-
-        <div class="grid-2">
-          <div>
-            <label for="nome">Nome</label>
-            <select id="nome"></select>
-          </div>
-          </div>
-      </div>
-
-     <div class="card">
-  <h2>💬 Novo chamado</h2>
-
-  <div class="sub">
-    O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.
+  <div class="home-actions">
+    <button id="btnToggleAllHome" type="button" class="home-toggle-all-btn">Expandir todos</button>
   </div>
 
-  <div class="form-group">
-    <label for="tipo">Tipo do Chamado</label>
-    <select id="tipo" required>
-      <option value="">Selecione</option>
-      <option value="manutencao">🛠 Manutenção</option>
-      <option value="compra">💰 Compra</option>
-    </select>
+  <div id="homeListaAbertos" class="home-lista"></div>
+</div>
+```
+
   </div>
 
+<button id="btnInstalarApp" type="button" class="btn-install hidden">📲 Instalar app</button>
+
+</section>
+
+<section id="screen-novo" class="screen">
+  <div class="card">
+    <h2>👤 Dados do solicitante</h2>
+    <div class="sub">Selecione o militar cadastrado. Caso necessário, mantenha a opção “NÃO IDENTIFICADO”.</div>
+
+```
+<div class="grid-2">
+  <div>
+    <label for="nome">Nome</label>
+    <select id="nome"></select>
+  </div>
+</div>
+```
+
+  </div>
+
+  <div class="card">
+    <h2>💬 Novo chamado</h2>
+
+```
+<div class="sub">
+  O setor será definido automaticamente como <strong>B4</strong> e a prioridade inicial será <strong>Média</strong>.
+</div>
+
+<div class="form-group">
+  <label for="tipo">Tipo do Chamado</label>
+  <select id="tipo" required>
+    <option value="">Selecione</option>
+    <option value="manutencao">🛠 Manutenção</option>
+    <option value="compra">💰 Compra</option>
+  </select>
+</div>
+```
   <label for="titulo">Título</label>
   <input id="titulo" class="uppercase-field" placeholder="Ex: TORNEIRA DA COZINHA NÃO FECHA" />
 
