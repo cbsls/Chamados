@@ -166,24 +166,33 @@ let isAdmin = false
 let chamadoAtual = null
 
 async function login() {
+
+  const id = document.getElementById('idFunc').value
+  const senha = document.getElementById('senha').value
+
   const { data } = await supabaseClient
     .from('usuarios')
     .select('*')
-    .eq('id_func', idFunc.value)
+    .eq('id_func', id)
     .single()
 
-  if (!data || data.senha !== senha.value) return alert('Erro login')
+  if (!data || data.senha !== senha) {
+    alert('Erro login')
+    return
+  }
 
   user = data
   isAdmin = data.tipo === 'admin'
 
-  nome.innerText = data.nome_guerra || data.nome
+  document.getElementById('nome').innerText = data.nome_guerra || data.nome
 
-  if (isAdmin) btnAdmin.classList.remove('hidden')
+  if (isAdmin) {
+    document.getElementById('btnAdmin').classList.remove('hidden')
+  }
 
-  login.classList.add('hidden')
-  app.classList.remove('hidden')
-  nav.classList.remove('hidden')
+  document.getElementById('login').classList.add('hidden')
+  document.getElementById('app').classList.remove('hidden')
+  document.getElementById('nav').classList.remove('hidden')
 
   carregarSaldo()
   carregarChamados()
@@ -198,7 +207,7 @@ function ativarAdmin() {
 
 async function carregarSaldo() {
   const { data } = await supabaseClient.from('financeiro').select('*').single()
-  saldo.innerText = 'R$ ' + Number(data.saldo_atual || 0).toFixed(2)
+  document.getElementById('saldo').innerText = 'R$ ' + Number(data.saldo_atual || 0).toFixed(2)
 }
 
 async function carregarChamados() {
