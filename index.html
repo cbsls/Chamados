@@ -1584,19 +1584,21 @@ async function loadTickets(showToast = true) {
 }
 
 
-// 🔥 CRIAR CHAMADO (VERSÃO FINAL - SEM DUPLICAÇÃO)
+ // 🔥 CRIAR CHAMADO (VERSÃO FINAL - SEM DUPLICAÇÃO)
 async function createTicket() {
 
   if (!usuarioLogado) {
     showMessage('Faça login para abrir um chamado.', 'erro')
     return
   }
-  const tipo = document.getElementById('tipo').value
 
-if (!tipo) {
-  showMessage('Selecione o tipo do chamado.', 'erro')
-  return
-}
+  const tipoEl = document.getElementById('tipo')
+  const tipo = String(tipoEl?.value || '').toLowerCase()
+
+  if (!tipo) {
+    showMessage('Selecione o tipo do chamado.', 'erro')
+    return
+  }
 
   const nome = String(usuarioLogado.nome || '').toUpperCase()
   const matricula = usuarioLogado.id_func || null
@@ -1604,8 +1606,6 @@ if (!tipo) {
   const titulo = String($('titulo').value || '').trim().toUpperCase()
   const descricao = $('descricao').value.trim()
   const local = String($('local').value || '').trim().toUpperCase()
-  const tipoEl = document.getElementById('tipo')
-const tipo = String(tipoEl?.value || 'manutencao').toLowerCase()
 
   if (!titulo) {
     showMessage('Preencha o título do chamado.', 'erro')
