@@ -1726,104 +1726,96 @@ window.mostrarApp = mostrarApp
 window.restaurarSessaoUsuario = restaurarSessaoUsuario
   
 function buildTicketHTML(c) {
-  const exibirCompraNaLista =
-  c.status === 'Em orçamento' ||
-  c.status === 'Finalizado compra'
-    (c.valor_compra !== null && c.valor_compra !== undefined && c.valor_compra !== '') || c.data_compra
-  )
+const exibirCompraNaLista =
+(c.status === 'Em orçamento' || c.status === 'Finalizado compra') &&
+(
+(c.valor_compra !== null && c.valor_compra !== undefined && c.valor_compra !== '') ||
+c.data_compra
+)
 
-      return `
-        <div class="ticket ${ticketClass(c.prioridade, c.status)}">
-          ${isResolved(c.status) ? `<div class="resolved-seal">✅ Resolvido</div>` : ''}
+return `    <div class="ticket ${ticketClass(c.prioridade, c.status)}">
+      ${isResolved(c.status) ?`<div class="resolved-seal">✅ Resolvido</div>` : ''}
 
-          <div class="ticket-head">
-            <div>
-              <div class="ticket-title">${escapeHtml(c.titulo || '-')}</div>
-              <div class="ticket-sub">${escapeHtml(c.descricao || '')}</div>
-            </div>
-          </div>
-
-          <div class="mini-badges">
-            <span class="badge ${statusClass(c.status)}">${escapeHtml(c.status || '-')}</span>
-            <span class="badge ${priorityClass(c.prioridade)}">${escapeHtml(c.prioridade || '-')}</span>
-            <span class="badge">📍 ${escapeHtml(c.local || '-')}</span>
-            <span class="badge">🏢 ${escapeHtml(c.setor_responsavel || 'Não definido')}</span>
-          </div>
-
-          ${buildTimerHTML(c)}
-
-         <div class="meta">
-  ${MOSTRAR_IDENTIDADE_SOLICITANTE ? `
-    <div><strong>Solicitante:</strong> ${escapeHtml(c.nome_solicitante || '-')}</div>
-    <div><strong>Matrícula:</strong> ${escapeHtml(c.matricula_solicitante || '-')}</div>
-  ` : ''}
-
-  <div><strong>Responsável:</strong> ${escapeHtml(c.responsavel_designado || 'Não definido')}</div>
-  <div><strong>Abertura:</strong> ${escapeHtml(formatDate(c.created_at))}</div>
-  ${exibirCompraNaLista ? `<div><strong>Valor da compra:</strong> ${escapeHtml(formatCurrency(c.valor_compra))}</div>` : ''}
-  ${exibirCompraNaLista ? `<div><strong>Data da compra:</strong> ${escapeHtml(formatDateOnly(c.data_compra))}</div>` : ''}
-</div>
-
-          ${c.observacao_admin ? `<div class="obs-box"><strong>Observação da triagem:</strong><br>${escapeHtml(c.observacao_admin)}</div>` : ''}
-          ${c.justificativa_negativa ? `<div class="neg-box"><strong>Justificativa da negativa:</strong><br>${escapeHtml(c.justificativa_negativa)}</div>` : ''}
-
-        ${adminMode ? `
-  <div class="admin-area">
-    <div class="chip">🏢 Setor fixo: B4</div>
-
- <!-- STATUS -->
-<label>Status</label>
-<select 
-  data-status-select="${escapeHtml(c.id)}"
-  onchange="handleStatusChange('${escapeHtml(c.id)}', this)"
->
-  <option value="Aguardando triagem" ${c.status === 'Aguardando triagem' ? 'selected' : ''}>Aguardando triagem</option>
-  <option value="Encaminhado" ${c.status === 'Encaminhado' ? 'selected' : ''}>Encaminhado</option>
-  <option value="Em andamento" ${c.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
-  <option value="Finalizado" ${c.status === 'Finalizado' ? 'selected' : ''}>Finalizado</option>
-  <option value="Negado" ${c.status === 'Negado' ? 'selected' : ''}>Negado</option>
-</select>
-
-<!-- CAMPOS DE COMPRA -->
-${purchaseFieldsHTML(c)}
-
-    <!-- PRIORIDADE -->
-    <label>Prioridade</label>
-    <select data-prioridade-select="${escapeHtml(c.id)}">
-      <option value="Baixa" ${c.prioridade === 'Baixa' ? 'selected' : ''}>Baixa</option>
-      <option value="Média" ${c.prioridade === 'Média' ? 'selected' : ''}>Média</option>
-      <option value="Alta" ${c.prioridade === 'Alta' ? 'selected' : ''}>Alta</option>
-    </select>
-
-    <!-- RESPONSÁVEL -->
-    <label>Responsável</label>
-    <select data-responsavel-select="${escapeHtml(c.id)}">
-      ${responsavelOptions(c.responsavel_designado || '')}
-    </select>
-
-    <!-- OBS -->
-    <label>Observações</label>
-    <textarea id="obs-${c.id}" placeholder="Observações da triagem">${escapeHtml(c.observacao_admin || '')}</textarea>
-
-    <!-- NEGATIVA -->
-    <label>Justificativa da negativa</label>
-    <textarea id="neg-${c.id}" placeholder="Obrigatório para negar">${escapeHtml(c.justificativa_negativa || '')}</textarea>
-
-    <!-- AÇÕES -->
-    <div class="actions">
-      <button type="button" class="btn-success" onclick="salvarAlteracoes('${c.id}')">
-        💾 Salvar alterações
-      </button>
-
-      <button type="button" class="btn-danger" onclick="negarChamado('${c.id}')">
-        ⛔ Negar chamado
-      </button>
+```
+  <div class="ticket-head">
+    <div>
+      <div class="ticket-title">${escapeHtml(c.titulo || '-')}</div>
+      <div class="ticket-sub">${escapeHtml(c.descricao || '')}</div>
     </div>
   </div>
-` : ''}
 
-      </div>
-    `
+  <div class="mini-badges">
+    <span class="badge ${statusClass(c.status)}">${escapeHtml(c.status || '-')}</span>
+    <span class="badge ${priorityClass(c.prioridade)}">${escapeHtml(c.prioridade || '-')}</span>
+    <span class="badge">📍 ${escapeHtml(c.local || '-')}</span>
+    <span class="badge">🏢 ${escapeHtml(c.setor_responsavel || 'Não definido')}</span>
+  </div>
+
+  ${buildTimerHTML(c)}
+
+  <div class="meta">
+    ${MOSTRAR_IDENTIDADE_SOLICITANTE ? `
+      <div><strong>Solicitante:</strong> ${escapeHtml(c.nome_solicitante || '-')}</div>
+      <div><strong>Matrícula:</strong> ${escapeHtml(c.matricula_solicitante || '-')}</div>
+    ` : ''}
+
+    <div><strong>Responsável:</strong> ${escapeHtml(c.responsavel_designado || 'Não definido')}</div>
+    <div><strong>Abertura:</strong> ${escapeHtml(formatDate(c.created_at))}</div>
+
+    ${exibirCompraNaLista ? `<div><strong>Valor da compra:</strong> ${escapeHtml(formatCurrency(c.valor_compra))}</div>` : ''}
+    ${exibirCompraNaLista ? `<div><strong>Data da compra:</strong> ${escapeHtml(formatDateOnly(c.data_compra))}</div>` : ''}
+  </div>
+
+  ${c.observacao_admin ? `<div class="obs-box"><strong>Observação da triagem:</strong><br>${escapeHtml(c.observacao_admin)}</div>` : ''}
+  ${c.justificativa_negativa ? `<div class="neg-box"><strong>Justificativa da negativa:</strong><br>${escapeHtml(c.justificativa_negativa)}</div>` : ''}
+
+  ${adminMode ? `
+    <div class="admin-area">
+      <div class="chip">🏢 Setor fixo: B4</div>
+
+      <label>Status</label>
+      <select 
+        data-status-select="${escapeHtml(c.id)}"
+        onchange="handleStatusChange('${escapeHtml(c.id)}', this)"
+      >
+        <option value="Aguardando triagem" ${c.status === 'Aguardando triagem' ? 'selected' : ''}>Aguardando triagem</option>
+        <option value="Encaminhado" ${c.status === 'Encaminhado' ? 'selected' : ''}>Encaminhado</option>
+        <option value="Em andamento" ${c.status === 'Em andamento' ? 'selected' : ''}>Em andamento</option>
+        <option value="Finalizado" ${c.status === 'Finalizado' ? 'selected' : ''}>Finalizado</option>
+        <option value="Negado" ${c.status === 'Negado' ? 'selected' : ''}>Negado</option>
+      </select>
+
+      ${purchaseFieldsHTML(c)}
+
+      <label>Prioridade</label>
+      <select data-prioridade-select="${escapeHtml(c.id)}">
+        <option value="Baixa" ${c.prioridade === 'Baixa' ? 'selected' : ''}>Baixa</option>
+        <option value="Média" ${c.prioridade === 'Média' ? 'selected' : ''}>Média</option>
+        <option value="Alta" ${c.prioridade === 'Alta' ? 'selected' : ''}>Alta</option>
+      </select>
+
+      <label>Responsável</label>
+      <select data-responsavel-select="${escapeHtml(c.id)}">
+        ${responsavelOptions(c.responsavel_designado || '')}
+      </select>
+
+      <label>Observações</label>
+      <textarea id="obs-${c.id}" placeholder="Observações da triagem">${escapeHtml(c.observacao_admin || '')}</textarea>
+
+      <label>Justificativa da negativa</label>
+      <textarea id="neg-${c.id}" placeholder="Obrigatório para negar">${escapeHtml(c.justificativa_negativa || '')}</textarea>
+
+      <div class="actions">
+        <button type="button" class="btn-success" onclick="salvarAlteracoes('${c.id}')">
+          💾 Salvar alterações
+        </button>
+
+        <button type="button" class="btn-danger" onclick="negarChamado('${c.id}')">
+          ⛔ Negar chamado
+        </button>
+         </div>
+    </div>
+  `
 }
 
 function buildHomeItemHTML(c) {
